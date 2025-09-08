@@ -1,0 +1,117 @@
+// This is your Pri  role           String   @default("MEMBER") // 改為 Stringma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  name          String
+  email         String   @unique
+  avatar        String?
+  oauthProvider String   @map("oauth_provider")
+  oauthId       String   @map("oauth_id")
+  role          String   @default("MEMBER") // 改為 String
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  files File[]
+  pages Page[]
+
+  @@map("users")
+}
+
+model File {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  name          String
+  originalName  String   @map("original_name")
+  filename      String?  // 新增：實際檔案名稱（用於 created files）
+  storageKey    String?  @map("storage_key") // 改為可選，因為 created files 可能不使用 S3
+  mimeType      String   @map("mime_type")
+  sizeBytes     Int      @map("size_bytes")
+  downloads     Int      @default(0)
+  downloadSlug  String?  @unique @map("download_slug") // 改為可選
+  description   String?
+  isActive      Boolean  @default(true) @map("is_active")
+  isCreated     Boolean  @default(false) @map("is_created") // 新增：是否為線上創建的檔案
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages Page[]
+
+  @@map("files")
+}
+
+model Page {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  title          String
+  slug           String   @unique
+  description    String?
+  template       String   @default("xiyi-download")
+  fileId         Int?     @map("file_id")
+  settings       String?  @map("settings_text") // JSON as text
+  images         String?  @map("images_json") // JSON array of image URLs
+  isActive       Boolean  @default(true) @map("is_active")
+  conversionRate Float?   @map("conversion_rate")
+  abTestVariant  String?  @map("ab_test_variant")
+  views          Int      @default(0)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file  File? @relation(fields: [fileId], references: [id], onDelete: SetNull)
+  leads Lead[]
+
+  @@map("pages")
+}
+
+model Lead {
+  id             Int      @id @default(autoincrement())
+  pageId         Int      @map("page_id")
+  email          String
+  ipAddress      String?  @map("ip_address")
+  userAgent      String?  @map("user_agent")
+  utmParams      String?  @map("utm_params_text") // 改為 String
+  engagementData String?  @map("engagement_data_text") // 改為 String
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relations
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([pageId])
+  @@unique([pageId, email]) // Prevent duplicate email per page
+  @@map("leads")
+}
+
+model Analytics {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  pageId    Int?     @map("page_id")
+  event     String   // 'view', 'download', 'conversion', etc.
+  data      String?  @map("data_text") // 改為 String
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([pageId])
+  @@index([event])
+  @@index([createdAt])
+  @@map("analytics")
+}
+
+// 移除 enum，改用字串常數
+// Role: "ADMIN", "OWNER", "MEMBER"

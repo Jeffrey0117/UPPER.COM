@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lead Magnet Platform</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 24px;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        margin: 15px 0;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+      }
+      .btn-google {
+        background: #4285f4;
+        color: white;
+      }
+      .btn-google:hover {
+        background: #357ae8;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+      }
+      .btn-github {
+        background: #333;
+        color: white;
+      }
+      .btn-github:hover {
+        background: #24292e;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(51, 51, 51, 0.3);
+      }
+      .status {
+        margin: 20px 0;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      .status.loading {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+      .status.error {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .status.success {
+        background: #e8f5e8;
+        color: #2e7d32;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #666;
+      }
+      .loading-spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🚀 Lead Magnet Platform</h1>
+
+      <div id="status" class="status loading">
+        <div class="loading-spinner"></div>
+        正在載入登入選項...
+      </div>
+
+      <div id="loginOptions" style="display: none">
+        <p style="color: #666; margin-bottom: 25px">選擇您的登入方式</p>
+        <div id="authButtons"></div>
+      </div>
+
+      <div class="footer">
+        <p>© 2025 Lead Magnet Platform</p>
+        <p>安全 • 簡單 • 高效</p>
+        <div
+          style="
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+          "
+        >
+          <a
+            href="/dev-login.html"
+            style="color: #666; font-size: 12px; text-decoration: none"
+          >
+            🛠️ 開發模式登入 (無需 OAuth)
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const statusDiv = document.getElementById("status");
+      const loginOptions = document.getElementById("loginOptions");
+      const authButtons = document.getElementById("authButtons");
+
+      function showStatus(message, type = "loading") {
+        statusDiv.className = `status ${type}`;
+        statusDiv.innerHTML =
+          type === "loading"
+            ? `<div class="loading-spinner"></div>${message}`
+            : message;
+        statusDiv.style.display = "block";
+        loginOptions.style.display = "none";
+      }
+
+      function showLoginOptions(providers) {
+        statusDiv.style.display = "none";
+        loginOptions.style.display = "block";
+
+        if (providers && providers.length > 0) {
+          authButtons.innerHTML = providers
+            .map((provider) => {
+              const icon = provider.name === "google" ? "🔵" : "⚫";
+              const btnClass =
+                provider.name === "google" ? "btn-google" : "btn-github";
+              return `
+                        <a href="/api/auth/${provider.name}" class="btn ${btnClass}">
+                            ${icon} 使用 ${provider.displayName} 登入
+                        </a>
+                    `;
+            })
+            .join("");
+        } else {
+          authButtons.innerHTML = `
+                    <div class="status error">
+                        <p>目前沒有可用的登入方式</p>
+                        <p style="font-size: 12px; margin-top: 10px;">
+                            請聯繫管理員設置 OAuth 認證
+                        </p>
+                    </div>
+                `;
+        }
+      }
+
+      async function loadAuthProviders() {
+        try {
+          showStatus("連接到伺服器...", "loading");
+
+          const response = await fetch("/api/auth/login");
+
+          if (!response.ok) {
+            throw new Error(`伺服器錯誤: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          setTimeout(() => {
+            showLoginOptions(data.providers);
+          }, 500); // 短暫延遲讓用戶看到載入過程
+        } catch (error) {
+          console.error("Load auth providers error:", error);
+          showStatus(
+            `
+                    <p><strong>連接失敗</strong></p>
+                    <p>${error.message}</p>
+                    <p style="font-size: 12px; margin-top: 10px;">
+                        請確認伺服器正在運行<br>
+                        <a href="javascript:window.location.reload()" style="color: #1976d2;">重新載入</a>
+                    </p>
+                `,
+            "error"
+          );
+        }
+      }
+
+      // Check if user is returning from OAuth
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("token")) {
+        const token = urlParams.get("token");
+        const refreshToken = urlParams.get("refreshToken");
+
+        localStorage.setItem("accessToken", token);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
+
+        showStatus("登入成功！正在跳轉...", "success");
+
+        setTimeout(() => {
+          window.location.href = "/admin.html";
+        }, 1500);
+      } else {
+        // Load auth providers
+        loadAuthProviders();
+      }
+    </script>
+  </body>
+</html>

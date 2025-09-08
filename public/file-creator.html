@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>檔案製作工具 - Upper</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <style>
+        .file-type-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            background-color: white;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-type-btn:hover {
+            background-color: #f9fafb;
+        }
+        
+        .file-type-btn.active {
+            background: linear-gradient(135deg, #f59e0b 0%, #10b981 100%);
+            color: white;
+            border-color: #f59e0b;
+        }
+        
+        .grid-cols-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        
+        @media (min-width: 768px) {
+            .md\:grid-cols-8 {
+                grid-template-columns: repeat(8, minmax(0, 1fr));
+            }
+        }
+        
+        .template-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            background-color: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-btn:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <img src="/logo.png" alt="Upper Logo" class="h-8 w-auto mr-3">
+                    <h1 class="text-2xl font-bold text-gray-900">Upper</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/admin.html" class="text-gray-600 hover:text-gray-900">返回控制台</a>
+                    <button onclick="logout()" class="text-red-600 hover:text-red-700">登出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">線上檔案製作工具</h2>
+            <p class="text-gray-600 mb-8">直接在瀏覽器中創建各種格式的檔案，無需上傳！</p>
+
+            <!-- File Type Selection -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">選擇檔案類型：</label>
+                <div class="grid grid-cols-4 md:grid-cols-8 gap-2">
+                    <button class="file-type-btn active px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="txt">TXT</button>
+                    <button class="file-type-btn px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="json">JSON</button>
+                    <button class="file-type-btn px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="csv">CSV</button>
+                    <button class="file-type-btn px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="html">HTML</button>
+                    <button class="file-type-btn px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="xml">XML</button>
+                    <button class="file-type-btn px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="md">MD</button>
+                    <button class="file-type-btn px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" data-type="pdf">PDF</button>
+                </div>
+            </div>
+
+            <!-- File Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">檔案名稱：</label>
+                    <input type="text" id="filename" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="my-file">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">分享頁標題：</label>
+                    <input type="text" id="title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500" placeholder="下載我的檔案">
+                </div>
+            </div>
+
+            <!-- Content Editor -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">檔案內容：</label>
+                <div class="relative">
+                    <textarea 
+                        id="content" 
+                        rows="15" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-mono text-sm"
+                        placeholder="在此輸入您的檔案內容..."
+                    ></textarea>
+                    <div class="absolute bottom-2 right-2 text-xs text-gray-500">
+                        <span id="charCount">0</span> 字元
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Buttons -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-3">快速模板：</label>
+                <div class="flex flex-wrap gap-2" id="templateButtons">
+                    <!-- Templates will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Create Button -->
+            <div class="flex justify-end">
+                <button 
+                    onclick="createFile()" 
+                    class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-semibold"
+                    id="createBtn"
+                >
+                    創建檔案
+                </button>
+            </div>
+        </div>
+
+        <!-- Created Files List -->
+        <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-4">我創建的檔案</h3>
+            <div id="createdFiles" class="space-y-3">
+                <!-- Files will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('accessToken') || localStorage.getItem('authToken') || localStorage.getItem('adminToken') || localStorage.getItem('token');
+        let selectedFileType = 'txt'; // 預設檔案類型
+
+        // File type templates
+        const templates = {
+            txt: [
+                { name: '純文字', content: '這是一個純文字檔案。\n您可以在這裡輸入任何文字內容。' },
+                { name: '待辦清單', content: '待辦事項：\n\n☐ 項目 1\n☐ 項目 2\n☐ 項目 3\n\n完成：\n☑ 已完成項目' }
+            ],
+            json: [
+                { name: '基本 JSON', content: '{\n  "name": "範例",\n  "version": "1.0.0",\n  "description": "這是一個 JSON 檔案範例"\n}' },
+                { name: '用戶資料', content: '{\n  "users": [\n    {\n      "id": 1,\n      "name": "張三",\n      "email": "zhang@example.com"\n    },\n    {\n      "id": 2,\n      "name": "李四",\n      "email": "li@example.com"\n    }\n  ]\n}' }
+            ],
+            csv: [
+                { name: '基本 CSV', content: '姓名,年齡,城市\n張三,25,台北\n李四,30,高雄\n王五,28,台中' },
+                { name: '銷售數據', content: '日期,產品,數量,金額\n2024-01-01,產品A,10,1000\n2024-01-02,產品B,5,500\n2024-01-03,產品C,8,800' }
+            ],
+            html: [
+                { name: '基本 HTML', content: '<!DOCTYPE html>\n<html>\n<head>\n    <title>我的網頁</title>\n</head>\n<body>\n    <h1>歡迎來到我的網頁</h1>\n    <p>這是一個 HTML 檔案範例。</p>\n</body>\n</html>' },
+                { name: '簡單頁面', content: '<!DOCTYPE html>\n<html>\n<head>\n    <title>簡單頁面</title>\n    <style>\n        body { font-family: Arial, sans-serif; margin: 40px; }\n        h1 { color: #333; }\n    </style>\n</head>\n<body>\n    <h1>標題</h1>\n    <p>內容段落</p>\n    <ul>\n        <li>項目 1</li>\n        <li>項目 2</li>\n    </ul>\n</body>\n</html>' }
+            ],
+            xml: [
+                { name: '基本 XML', content: '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n    <item id="1">\n        <name>項目一</name>\n        <description>這是第一個項目</description>\n    </item>\n    <item id="2">\n        <name>項目二</name>\n        <description>這是第二個項目</description>\n    </item>\n</root>' }
+            ],
+            md: [
+                { name: '基本 Markdown', content: '# 我的文件\n\n## 簡介\n\n這是一個 **Markdown** 檔案範例。\n\n### 功能列表\n\n- 項目 1\n- 項目 2\n- 項目 3\n\n### 程式碼範例\n\n```javascript\nconsole.log("Hello, World!");\n```\n\n[連結範例](https://example.com)' },
+                { name: 'README', content: '# 專案名稱\n\n## 描述\n\n這是一個專案的 README 檔案。\n\n## 安裝\n\n```bash\nnpm install\n```\n\n## 使用方法\n\n```bash\nnpm start\n```\n\n## 授權\n\nMIT License' }
+            ],
+            pdf: [
+                { name: '基本文件', content: '這是一個 PDF 文件範例。\n\n您可以在這裡輸入任何文字內容，系統會自動將其轉換為 PDF 格式。\n\n支援多行文字和基本的換行功能。' }
+            ]
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up file type buttons
+            document.querySelectorAll('.file-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.file-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedFileType = this.dataset.type;
+                    updateTemplateButtons();
+                });
+            });
+            
+            updateTemplateButtons();
+            loadCreatedFiles();
+            
+            // Character count
+            document.getElementById('content').addEventListener('input', function() {
+                document.getElementById('charCount').textContent = this.value.length;
+            });
+        });
+
+        // File type selection
+        function updateTemplateButtons() {
+            const container = document.getElementById('templateButtons');
+            container.innerHTML = '';
+            
+            if (templates[selectedFileType]) {
+                templates[selectedFileType].forEach(template => {
+                    const btn = document.createElement('button');
+                    btn.className = 'px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded border transition-colors';
+                    btn.textContent = template.name;
+                    btn.onclick = () => {
+                        document.getElementById('content').value = template.content;
+                        document.getElementById('charCount').textContent = template.content.length;
+                    };
+                    container.appendChild(btn);
+                });
+            }
+        }
+
+        async function createFile() {
+            const content = document.getElementById('content').value.trim();
+            const filename = document.getElementById('filename').value.trim();
+            const title = document.getElementById('title').value.trim();
+
+            if (!content) {
+                alert('請輸入檔案內容');
+                return;
+            }
+
+            if (!filename) {
+                alert('請輸入檔案名稱');
+                return;
+            }
+
+            const createBtn = document.getElementById('createBtn');
+            createBtn.disabled = true;
+            createBtn.textContent = '創建中...';
+
+            try {
+                const response = await fetch('/api/file-creator/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        content,
+                        filename,
+                        fileType: selectedFileType,
+                        title: title || `下載 ${filename}`,
+                        description: `創建的 ${selectedFileType.toUpperCase()} 檔案`
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('檔案創建成功！');
+                    // Clear form
+                    document.getElementById('content').value = '';
+                    document.getElementById('filename').value = '';
+                    document.getElementById('title').value = '';
+                    document.getElementById('charCount').textContent = '0';
+                    
+                    // Reload created files
+                    loadCreatedFiles();
+                } else {
+                    alert('創建失敗：' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('創建失敗，請稍後再試');
+            } finally {
+                createBtn.disabled = false;
+                createBtn.textContent = '創建檔案';
+            }
+        }
+
+        async function loadCreatedFiles() {
+            try {
+                const response = await fetch('/api/file-creator/my-files', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const container = document.getElementById('createdFiles');
+                    
+                    if (result.data.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500">尚未創建任何檔案</p>';
+                        return;
+                    }
+
+                    container.innerHTML = result.data.map(file => `
+                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                            <div class="flex-1">
+                                <h4 class="font-medium text-gray-900">${file.name}</h4>
+                                <p class="text-sm text-gray-500">
+                                    大小: ${formatFileSize(file.size)} | 
+                                    下載: ${file.downloads} 次 | 
+                                    瀏覽: ${file.totalViews} 次 |
+                                    創建: ${new Date(file.createdAt).toLocaleDateString()}
+                                </p>
+                            </div>
+                            <div class="flex space-x-2">
+                                ${file.pages.map(page => `
+                                    <a href="/share/${page.slug}" 
+                                       target="_blank" 
+                                       class="px-3 py-1 text-sm bg-orange-100 text-orange-700 rounded hover:bg-orange-200">
+                                        分享頁面
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading files:', error);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('adminToken');
+            window.location.href = '/login.html';
+        }
+
+        // Check if user is logged in
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>
