@@ -334,7 +334,9 @@ router.get(
             userId: userId,
           },
           ...(pageId && { pageId: parseInt(pageId) }),
-          ...(dateFilter.gte || dateFilter.lte ? { createdAt: dateFilter } : {}),
+          ...(dateFilter.gte || dateFilter.lte
+            ? { createdAt: dateFilter }
+            : {}),
         },
         include: {
           page: {
@@ -355,10 +357,10 @@ router.get(
         orderBy: { createdAt: "desc" },
       });
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         leads: leads,
-        total: leads.length 
+        total: leads.length,
       });
     } catch (error) {
       logger.error("Get leads failed:", error);

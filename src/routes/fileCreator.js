@@ -99,13 +99,13 @@ router.post(
         case "pdf":
           // Create PDF using jsPDF
           const doc = new jsPDF();
-          
+
           // Split content into lines and add to PDF
           const lines = content.split("\n");
           let yPosition = 20;
           const lineHeight = 10;
           const pageHeight = doc.internal.pageSize.height;
-          
+
           lines.forEach((line) => {
             if (yPosition > pageHeight - 20) {
               doc.addPage();
@@ -114,7 +114,7 @@ router.post(
             doc.text(line, 20, yPosition);
             yPosition += lineHeight;
           });
-          
+
           fileBuffer = Buffer.from(doc.output("arraybuffer"));
           mimeType = "application/pdf";
           if (!finalFilename.endsWith(".pdf")) {
@@ -134,7 +134,7 @@ router.post(
       const randomString = Math.random().toString(36).substring(7);
       const uniqueFilename = `${timestamp}-${randomString}-${finalFilename}`;
       const downloadSlug = `download-${timestamp}-${randomString}`;
-      
+
       // Save file to uploads directory
       const uploadsDir = path.join(__dirname, "../../uploads");
       await fs.mkdir(uploadsDir, { recursive: true });
@@ -156,15 +156,19 @@ router.post(
         },
       });
 
-      // Create default page for the file
+      // Create default page for the file with file type icon
+      const fileExtension = fileType.toLowerCase();
       const page = await prisma.page.create({
         data: {
           title: title || `Download ${finalFilename}`,
           description: description || `Created file: ${finalFilename}`,
-          slug: `created-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+          slug: `created-${Date.now()}-${Math.random()
+            .toString(36)
+            .substring(7)}`,
           fileId: file.id,
           userId,
           isActive: true,
+          images: JSON.stringify([`css-file-icon:${fileExtension}`]), // Add file type icon
         },
       });
 

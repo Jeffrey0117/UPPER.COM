@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>開發模式登入 - Lead Magnet Platform</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 24px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+        font-weight: 600;
+      }
+      input[type="text"],
+      input[type="email"] {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+      }
+      input[type="text"]:focus,
+      input[type="email"]:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        margin: 20px 0;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+      }
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
+      .btn-primary:hover {
+        background: #5a6fd8;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+      }
+      .btn-secondary {
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+      }
+      .btn-secondary:hover {
+        background: #5a6268;
+        text-decoration: none;
+        color: white;
+      }
+      .status {
+        margin: 20px 0;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      .status.loading {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
+      .status.error {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .status.success {
+        background: #e8f5e8;
+        color: #2e7d32;
+      }
+      .dev-warning {
+        background: #fff3cd;
+        color: #856404;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        border-left: 4px solid #ffc107;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 12px;
+        color: #666;
+      }
+      .loading-spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🛠️ 開發模式登入</h1>
+
+      <div class="dev-warning">
+        <strong>⚠️ 開發模式</strong><br />
+        這是僅供開發使用的登入方式，不需要真實的 OAuth 配置。
+        請勿在生產環境中使用。
+      </div>
+
+      <div id="status" class="status" style="display: none"></div>
+
+      <form id="devLoginForm">
+        <div class="form-group">
+          <label for="name">姓名</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            required
+            placeholder="輸入您的姓名"
+            value="開發者"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">電子郵件</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            placeholder="輸入您的電子郵件"
+            value="dev@example.com"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary">🚀 開發登入</button>
+
+        <a href="/login.html" class="btn btn-secondary"> ← 返回正常登入頁面 </a>
+      </form>
+
+      <div class="footer">
+        <p>© 2025 Lead Magnet Platform</p>
+        <p>開發模式 • 僅供開發使用</p>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById("devLoginForm");
+      const statusDiv = document.getElementById("status");
+
+      function showStatus(message, type = "loading") {
+        statusDiv.className = `status ${type}`;
+        statusDiv.innerHTML =
+          type === "loading"
+            ? `<div class="loading-spinner"></div>${message}`
+            : message;
+        statusDiv.style.display = "block";
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(form);
+        const name = formData.get("name").trim();
+        const email = formData.get("email").trim();
+
+        if (!name || !email) {
+          showStatus("請填入姓名和電子郵件", "error");
+          return;
+        }
+
+        try {
+          showStatus("正在登入...", "loading");
+
+          const response = await fetch("/api/auth/dev-login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            // Store tokens in localStorage
+            localStorage.setItem("accessToken", data.tokens.accessToken);
+            localStorage.setItem("refreshToken", data.tokens.refreshToken);
+
+            showStatus("登入成功！正在跳轉到控制台...", "success");
+
+            setTimeout(() => {
+              window.location.href = "/admin.html";
+            }, 1500);
+          } else {
+            showStatus(`登入失敗: ${data.message || "未知錯誤"}`, "error");
+          }
+        } catch (error) {
+          console.error("Dev login error:", error);
+          showStatus(
+            `連接失敗: ${error.message || "請確認伺服器正在運行"}`,
+            "error"
+          );
+        }
+      });
+
+      // Check if already logged in
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        showStatus("您已登入，正在跳轉...", "success");
+        setTimeout(() => {
+          window.location.href = "/admin.html";
+        }, 1000);
+      }
+    </script>
+  </body>
+</html>

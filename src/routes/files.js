@@ -21,7 +21,11 @@ const storage = multer.diskStorage({
     }
   },
   filename: (req, file, cb) => {
-    const uniqueName = `${uuidv4()}-${file.originalname}`;
+    // 解決中文檔名亂碼問題
+    const originalName = Buffer.from(file.originalname, "latin1").toString(
+      "utf8"
+    );
+    const uniqueName = `${uuidv4()}-${originalName}`;
     cb(null, uniqueName);
   },
 });
@@ -103,13 +107,52 @@ router.post(
     const { name, description } = req.body;
     const downloadSlug = uuidv4();
 
-    logger.info(`File upload by user ${req.user.id}: ${req.file.originalname}`);
+    // 修正中文檔名顯示問題
+    const originalName = Buffer.from(req.file.originalname, "latin1").toString(
+      "utf8"
+    );
+    const displayName = name || originalName;
+
+    logger.info(`File upload by user ${req.user.id}: ${originalName}`);
+
+    // 檢查是否已存在相同的檔案（防止重複上傳）
+    const existingFile = await prisma.file.findFirst({
+      where: {
+        userId: req.user.id,
+        originalName: originalName,
+        sizeBytes: req.file.size,
+        createdAt: {
+          gte: new Date(Date.now() - 5000), // 5秒內的相同檔案視為重複
+        },
+      },
+    });
+
+    if (existingFile) {
+      // 如果檔案重複，刪除剛上傳的物理檔案並返回現有檔案資訊
+      try {
+        await fs.unlink(path.join("./uploads", req.file.filename));
+      } catch (error) {
+        logger.warn(`Could not delete duplicate file: ${req.file.filename}`);
+      }
+
+      return res.json({
+        success: true,
+        message: "File already exists",
+        file: {
+          id: existingFile.id,
+          name: existingFile.name,
+          downloadSlug: existingFile.downloadSlug,
+          downloadUrl: `/download/${existingFile.downloadSlug}`,
+          pageUrl: `/download-page/xiyi-download?file=${existingFile.downloadSlug}`,
+        },
+      });
+    }
 
     const file = await prisma.file.create({
       data: {
         userId: req.user.id,
-        name: name || req.file.originalname,
-        originalName: req.file.originalname,
+        name: displayName,
+        originalName: originalName,
         storageKey: req.file.filename,
         mimeType: req.file.mimetype,
         sizeBytes: req.file.size,
