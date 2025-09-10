@@ -18,6 +18,14 @@ model User {
   oauthProvider String   @map("oauth_provider")
   oauthId       String   @map("oauth_id")
   role          String   @default("MEMBER") // 改為 String
+  
+  // 個人檔案新欄位
+  bio           String?  // 個人簡介
+  location      String?  // 地點
+  website       String?  // 個人網站
+  company       String?  // 公司
+  profilePublic Boolean  @default(true) @map("profile_public") // 個人檔案是否公開
+  
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -42,6 +50,7 @@ model File {
   description   String?
   isActive      Boolean  @default(true) @map("is_active")
   isCreated     Boolean  @default(false) @map("is_created") // 新增：是否為線上創建的檔案
+  isPublic      Boolean  @default(false) @map("is_public") // 新增：檔案是否公開顯示在使用者頁面
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
