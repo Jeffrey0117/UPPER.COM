@@ -9,6 +9,21 @@ import { logger } from "../utils/logger.js";
 
 const router = express.Router();
 
+// 處理中檔案追蹤機制
+const processingFiles = new Map();
+
+// 檔案簽名生成
+function generateFileSignature(userId, originalName, size) {
+  return `${userId}_${originalName}_${size}`;
+}
+
+// 自動清理過期處理標記（10秒後清理）
+function cleanupProcessingFile(signature) {
+  setTimeout(() => {
+    processingFiles.delete(signature);
+  }, 10000);
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -100,12 +115,11 @@ router.post(
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "No file uploaded",
+        message: "未上傳檔案",
       });
     }
 
     const { name, description } = req.body;
-    const downloadSlug = uuidv4();
 
     // 修正中文檔名顯示問題
     const originalName = Buffer.from(req.file.originalname, "latin1").toString(
@@ -113,65 +127,117 @@ router.post(
     );
     const displayName = name || originalName;
 
-    logger.info(`File upload by user ${req.user.id}: ${originalName}`);
+    // 生成檔案簽名用於重複檢測
+    const fileSignature = generateFileSignature(req.user.id, originalName, req.file.size);
 
-    // 檢查是否已存在相同的檔案（防止重複上傳）
-    const existingFile = await prisma.file.findFirst({
-      where: {
-        userId: req.user.id,
-        originalName: originalName,
-        sizeBytes: req.file.size,
-        createdAt: {
-          gte: new Date(Date.now() - 5000), // 5秒內的相同檔案視為重複
-        },
-      },
-    });
+    logger.info(`檔案上傳請求 - 用戶: ${req.user.id}, 檔案: ${originalName}, 簽名: ${fileSignature}`);
 
-    if (existingFile) {
-      // 如果檔案重複，刪除剛上傳的物理檔案並返回現有檔案資訊
+    // 檢查是否正在處理相同檔案
+    if (processingFiles.has(fileSignature)) {
+      // 刪除重複上傳的物理檔案
       try {
         await fs.unlink(path.join("./uploads", req.file.filename));
       } catch (error) {
-        logger.warn(`Could not delete duplicate file: ${req.file.filename}`);
+        logger.warn(`無法刪除重複檔案: ${req.file.filename}`);
       }
 
-      return res.json({
-        success: true,
-        message: "File already exists",
-        file: {
-          id: existingFile.id,
-          name: existingFile.name,
-          downloadSlug: existingFile.downloadSlug,
-          downloadUrl: `/download/${existingFile.downloadSlug}`,
-          pageUrl: `/download-page/xiyi-download?file=${existingFile.downloadSlug}`,
-        },
+      return res.status(409).json({
+        success: false,
+        message: "檔案正在處理中，請勿重複上傳",
+        code: "PROCESSING"
       });
     }
 
-    const file = await prisma.file.create({
-      data: {
-        userId: req.user.id,
-        name: displayName,
-        originalName: originalName,
-        storageKey: req.file.filename,
-        mimeType: req.file.mimetype,
-        sizeBytes: req.file.size,
-        downloadSlug,
-        description: description || null,
-      },
+    // 標記檔案正在處理
+    processingFiles.set(fileSignature, {
+      userId: req.user.id,
+      originalName: originalName,
+      startTime: Date.now()
     });
 
-    res.json({
-      success: true,
-      message: "File uploaded successfully",
-      file: {
-        id: file.id,
-        name: file.name,
-        downloadSlug: file.downloadSlug,
-        downloadUrl: `/download/${file.downloadSlug}`,
-        pageUrl: `/download-page/xiyi-download?file=${file.downloadSlug}`,
-      },
-    });
+    // 設定自動清理
+    cleanupProcessingFile(fileSignature);
+
+    try {
+      // 檢查是否已存在相同的檔案
+      const existingFile = await prisma.file.findFirst({
+        where: {
+          userId: req.user.id,
+          originalName: originalName,
+          sizeBytes: req.file.size,
+        },
+      });
+
+      if (existingFile) {
+        // 檔案已存在，刪除物理檔案並返回現有檔案資訊
+        try {
+          await fs.unlink(path.join("./uploads", req.file.filename));
+        } catch (error) {
+          logger.warn(`無法刪除重複檔案: ${req.file.filename}`);
+        }
+
+        // 移除處理標記
+        processingFiles.delete(fileSignature);
+
+        return res.json({
+          success: true,
+          message: "檔案已存在",
+          file: {
+            id: existingFile.id,
+            name: existingFile.name,
+            downloadSlug: existingFile.downloadSlug,
+            downloadUrl: `/download/${existingFile.downloadSlug}`,
+            pageUrl: `/download-page/xiyi-download?file=${existingFile.downloadSlug}`,
+          },
+        });
+      }
+
+      // 創建新檔案記錄
+      const downloadSlug = uuidv4();
+      const file = await prisma.file.create({
+        data: {
+          userId: req.user.id,
+          name: displayName,
+          originalName: originalName,
+          storageKey: req.file.filename,
+          mimeType: req.file.mimetype,
+          sizeBytes: req.file.size,
+          downloadSlug,
+          description: description || null,
+        },
+      });
+
+      // 移除處理標記
+      processingFiles.delete(fileSignature);
+
+      logger.info(`檔案上傳成功 - ID: ${file.id}, 用戶: ${req.user.id}`);
+
+      res.json({
+        success: true,
+        message: "檔案上傳成功",
+        file: {
+          id: file.id,
+          name: file.name,
+          downloadSlug: file.downloadSlug,
+          downloadUrl: `/download/${file.downloadSlug}`,
+          pageUrl: `/download-page/xiyi-download?file=${file.downloadSlug}`,
+        },
+      });
+
+    } catch (error) {
+      // 發生錯誤時移除處理標記
+      processingFiles.delete(fileSignature);
+      
+      // 清理上傳的檔案
+      try {
+        await fs.unlink(path.join("./uploads", req.file.filename));
+      } catch (cleanupError) {
+        logger.warn(`無法清理失敗上傳的檔案: ${req.file.filename}`);
+      }
+
+      logger.error(`檔案上傳失敗: ${error.message}`, error);
+      throw error;
+    }
   })
 );
 

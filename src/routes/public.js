@@ -247,10 +247,109 @@ router.get(
 
         // If no page images, create a file type placeholder based on file extension
         if (images.length === 0) {
-          const fileExtension =
-            fileInfo && fileInfo.name
-              ? fileInfo.name.split(".").pop()?.toLowerCase() || "file"
-              : "file";
+          let fileExtension = "file";
+
+          if (fileInfo && fileInfo.name) {
+            // 如果有檔案資訊，使用檔案名稱推斷類型
+            fileExtension =
+              fileInfo.name.split(".").pop()?.toLowerCase() || "file";
+          } else {
+            // 如果頁面存在但沒有檔案資訊，嘗試從頁面標題或slug中推斷檔案類型
+            const title = pageToRender.title || "";
+            const slugLower = slug.toLowerCase();
+
+            // 優先從標題中檢查檔案附檔名
+            if (title.includes(".pdf")) {
+              fileExtension = "pdf";
+            } else if (title.includes(".json")) {
+              fileExtension = "json";
+            } else if (title.includes(".doc") || title.includes(".docx")) {
+              fileExtension = "doc";
+            } else if (title.includes(".xls") || title.includes(".xlsx")) {
+              fileExtension = "xls";
+            } else if (title.includes(".ppt") || title.includes(".pptx")) {
+              fileExtension = "ppt";
+            } else if (title.includes(".mp4") || title.includes(".avi")) {
+              fileExtension = "mp4";
+            } else if (title.includes(".mp3") || title.includes(".wav")) {
+              fileExtension = "mp3";
+            } else if (title.includes(".txt")) {
+              fileExtension = "txt";
+            } else if (title.includes(".zip") || title.includes(".rar")) {
+              fileExtension = "zip";
+            } else if (title.includes(".html")) {
+              fileExtension = "html";
+            } else if (title.includes(".css")) {
+              fileExtension = "css";
+            } else if (title.includes(".js")) {
+              fileExtension = "js";
+            }
+            // 如果標題中沒有附檔名，再從關鍵字推斷
+            else if (title.toLowerCase().includes("pdf")) {
+              fileExtension = "pdf";
+            } else if (title.toLowerCase().includes("json")) {
+              fileExtension = "json";
+            } else if (
+              title.toLowerCase().includes("doc") ||
+              title.toLowerCase().includes("word")
+            ) {
+              fileExtension = "doc";
+            } else if (
+              title.toLowerCase().includes("excel") ||
+              title.toLowerCase().includes("xls")
+            ) {
+              fileExtension = "xls";
+            } else if (
+              title.toLowerCase().includes("ppt") ||
+              title.toLowerCase().includes("powerpoint")
+            ) {
+              fileExtension = "ppt";
+            } else if (
+              title.toLowerCase().includes("video") ||
+              title.toLowerCase().includes("mp4")
+            ) {
+              fileExtension = "mp4";
+            } else if (
+              title.toLowerCase().includes("audio") ||
+              title.toLowerCase().includes("mp3")
+            ) {
+              fileExtension = "mp3";
+            } else if (
+              title.toLowerCase().includes("text") ||
+              title.toLowerCase().includes("txt")
+            ) {
+              fileExtension = "txt";
+            }
+            // 最後再從 slug 中檢查一般的檔案類型關鍵字（不包含特殊識別符）
+            else if (slugLower.includes("pdf")) {
+              fileExtension = "pdf";
+            } else if (slugLower.includes("json")) {
+              fileExtension = "json";
+            } else if (
+              slugLower.includes("doc") ||
+              slugLower.includes("word")
+            ) {
+              fileExtension = "doc";
+            } else if (
+              slugLower.includes("excel") ||
+              slugLower.includes("xls")
+            ) {
+              fileExtension = "xls";
+            } else if (
+              slugLower.includes("video") ||
+              slugLower.includes("mp4")
+            ) {
+              fileExtension = "mp4";
+            } else if (
+              slugLower.includes("audio") ||
+              slugLower.includes("mp3")
+            ) {
+              fileExtension = "mp3";
+            } else {
+              // 預設顯示通用檔案圖示
+              fileExtension = "file"; // 在沒有明確資訊的情況下，顯示通用檔案圖示
+            }
+          }
 
           // Create CSS-based file type display instead of placeholder image
           images = [`css-file-icon:${fileExtension}`];
@@ -269,11 +368,20 @@ router.get(
           }
         }
 
-        // If no page images, show a placeholder
+        // If no page images, create file type icon based on file extension
         if (images.length === 0) {
-          images = [
-            "https://via.placeholder.com/800x500/e5e7eb/9ca3af?text=No+Images+Available",
-          ];
+          let fileExtension = "file";
+
+          if (page.file && page.file.name) {
+            // 如果頁面有關聯的檔案，使用檔案副檔名
+            fileExtension =
+              page.file.name.split(".").pop()?.toLowerCase() || "file";
+          } else {
+            // 如果沒有關聯檔案，設為通用檔案圖示
+            fileExtension = "file";
+          }
+
+          images = [`css-file-icon:${fileExtension}`];
         }
       }
 
