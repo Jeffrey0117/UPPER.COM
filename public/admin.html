@@ -930,6 +930,7 @@
       .confirm-content p {
         color: #6b7280;
         margin-bottom: 20px;
+        line-height: 1.5;
       }
 
       .confirm-actions {
@@ -939,12 +940,14 @@
       }
 
       .confirm-actions button {
-        padding: 8px 16px;
+        padding: 10px 20px;
         border: none;
         border-radius: 6px;
         font-weight: 500;
+        font-size: 14px;
         cursor: pointer;
         transition: all 0.2s;
+        min-width: 80px;
       }
 
       .confirm-actions .btn-cancel {
@@ -963,6 +966,39 @@
 
       .confirm-actions .btn-delete:hover {
         background: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+      }
+
+      /* 通知樣式 */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        min-width: 300px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+      }
+
+      .notification-success {
+        background-color: #10b981;
+      }
+
+      .notification-error {
+        background-color: #dc2626;
+      }
+
+      .notification-warning {
+        background-color: #f59e0b;
+      }
+
+      .notification-info {
+        background-color: #3b82f6;
       }
 
       /* Grid utilities */
@@ -3246,6 +3282,136 @@
       document.addEventListener('DOMContentLoaded', function() {
         setupModalClickToClose();
       });
+      // 這些函數需要在全域作用域中才能被 HTML onclick 調用
+      
+      // 刪除檔案功能
+      function showDeleteConfirm(fileId, fileName) {
+        deleteFileId = fileId;
+        const dialog = document.getElementById('deleteConfirmDialog');
+        const message = document.getElementById('deleteConfirmMessage');
+        message.textContent = `您確定要刪除檔案「${fileName}」嗎？此操作無法撤銷。`;
+        dialog.classList.add('show');
+      }
+
+      function hideDeleteConfirm() {
+        const dialog = document.getElementById('deleteConfirmDialog');
+        dialog.classList.remove('show');
+        deleteFileId = null;
+      }
+
+      async function confirmDelete() {
+        if (!deleteFileId) return;
+        
+        try {
+          const response = await fetch(`/api/files/${deleteFileId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (response.ok) {
+            hideDeleteConfirm();
+            // 重新載入檔案列表
+            await loadFiles();
+            // 顯示成功訊息
+            showNotification('檔案已成功刪除', 'success');
+          } else {
+            const errorData = await response.json();
+            showNotification(`刪除失敗：${errorData.message || '未知錯誤'}`, 'error');
+          }
+        } catch (error) {
+          console.error('Delete file error:', error);
+          showNotification('刪除失敗：網路錯誤', 'error');
+        }
+      }
+
+      // 下載檔案功能
+      function downloadFile(downloadSlug) {
+        if (!downloadSlug) {
+          showNotification('無效的下載連結', 'error');
+          return;
+        }
+        
+        // 開啟新視窗進行下載
+        const downloadUrl = `/download/${downloadSlug}`;
+        window.open(downloadUrl, '_blank');
+        
+        showNotification('開始下載檔案...', 'info');
+      }
+
+      // 編輯檔案功能
+      function editFile(fileId) {
+        // 找到檔案資料
+        const file = currentFiles.find(f => f.id === parseInt(fileId));
+        if (!file) {
+          showNotification('檔案不存在', 'error');
+          return;
+        }
+
+        // 可以在這裡實現檔案編輯功能，目前暫時顯示檔案資訊
+        const message = `檔案名稱：${file.name}\n原始名稱：${file.originalName}\n大小：${formatFileSize(file.sizeBytes)}\n下載次數：${file.downloads}`;
+        alert(message);
+      }
+
+      // 通知系統
+      function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        // 設定樣式
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 12px 20px;
+          border-radius: 6px;
+          color: white;
+          font-weight: 500;
+          z-index: 10000;
+          min-width: 300px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          opacity: 0;
+          transform: translateX(100%);
+          transition: all 0.3s ease;
+        `;
+
+        // 根據類型設定背景顏色
+        switch (type) {
+          case 'success':
+            notification.style.backgroundColor = '#10b981';
+            break;
+          case 'error':
+            notification.style.backgroundColor = '#dc2626';
+            break;
+          case 'warning':
+            notification.style.backgroundColor = '#f59e0b';
+            break;
+          default:
+            notification.style.backgroundColor = '#3b82f6';
+        }
+
+        document.body.appendChild(notification);
+
+        // 觸發動畫
+        setTimeout(() => {
+          notification.style.opacity = '1';
+          notification.style.transform = 'translateX(0)';
+        }, 10);
+
+        // 3秒後自動移除
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => {
+            if (document.body.contains(notification)) {
+              document.body.removeChild(notification);
+            }
+          }, 300);
+        }, 3000);
+      }
     </script>
 
     <!-- 確認刪除對話框 -->
@@ -3261,454 +3427,3 @@
     </div>
   </body>
 </html>
-
-    <script>
-      // 全域變數
-      // Token will be set by earlier initialization code
-      
-      // 檔案管理相關變數已在上方定義
-      // 檢查身份驗證
-      function checkAuth() {
-        if (!accessToken) {
-          // 在開發環境中自動登入
-          autoDevLogin();
-          return false;
-        }
-        return true;
-      }
-
-      // 自動開發登入
-      async function autoDevLogin() {
-        try {
-          const response = await fetch('/api/auth/dev-login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-              email: 'admin@test.com', 
-              name: 'Admin User' 
-            })
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            accessToken = data.tokens.accessToken;
-            localStorage.setItem('adminToken', accessToken);
-            localStorage.setItem('accessToken', accessToken);
-            
-            // 初始化應用
-            initApp();
-          } else {
-            console.error('Auto login failed');
-            showLoginForm();
-          }
-        } catch (error) {
-          console.error('Auto login error:', error);
-          showLoginForm();
-        }
-      }
-
-      // 顯示登入表單
-      function showLoginForm() {
-        const loginHtml = `
-          <div style="
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-          ">
-            <div style="
-              background: white;
-              padding: 2rem;
-              border-radius: 8px;
-              width: 100%;
-              max-width: 400px;
-            ">
-              <h2 style="margin-bottom: 1rem;">管理員登入</h2>
-              <form id="loginForm">
-                <div style="margin-bottom: 1rem;">
-                  <label style="display: block; margin-bottom: 0.5rem;">使用者名稱</label>
-                  <input type="text" id="username" required style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <div style="margin-bottom: 1rem;">
-                  <label style="display: block; margin-bottom: 0.5rem;">密碼</label>
-                  <input type="password" id="password" required style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
-                </div>
-                <button type="submit" style="width: 100%; padding: 0.75rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">登入</button>
-              </form>
-              <div id="loginError" style="color: red; margin-top: 1rem; display: none;"></div>
-            </div>
-          </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', loginHtml);
-        
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
-          
-          try {
-            const response = await fetch('/api/auth/login', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ username, password })
-            });
-            
-            if (response.ok) {
-              const data = await response.json();
-              accessToken = data.token;
-              localStorage.setItem('adminToken', accessToken);
-              
-              // 移除登入表單
-              document.querySelector('[style*="position: fixed"]').remove();
-              
-              // 初始化應用
-              initApp();
-            } else {
-              const error = await response.json();
-              document.getElementById('loginError').textContent = error.message || '登入失敗';
-              document.getElementById('loginError').style.display = 'block';
-            }
-          } catch (error) {
-            document.getElementById('loginError').textContent = '連線錯誤，請稍後重試';
-            document.getElementById('loginError').style.display = 'block';
-          }
-        });
-      }
-
-      // 初始化應用
-      function initApp() {
-        initTabNavigation();
-        setupFileUpload();
-        
-        // 切換到檔案選項卡並載入檔案
-        switchTab('files');
-      }
-
-
-      // 檔案類型圖標映射
-      // 切換檔案視圖
-      function switchFilesView(view) {
-        currentView = view;
-        
-        // 更新按鈕狀態
-        document.querySelectorAll('.view-toggle button').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        document.querySelector(`[data-view="${view}"]`).classList.add('active');
-        
-        // 切換視圖
-        if (view === 'grid') {
-          document.getElementById('filesGrid').style.display = 'grid';
-          document.getElementById('filesList').style.display = 'none';
-        } else {
-          document.getElementById('filesGrid').style.display = 'none';
-          document.getElementById('filesList').style.display = 'block';
-        }
-        
-        renderFiles();
-      }
-
-      // 獲取檔案類型圖標
-      function getFileTypeIcon(filename) {
-        const extension = filename.split('.').pop().toLowerCase();
-        return fileTypeIcons[extension] || fileTypeIcons.default;
-      }
-
-      // 格式化檔案大小
-      // 格式化日期
-      function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('zh-TW') + ' ' + date.toLocaleTimeString('zh-TW', {hour: '2-digit', minute: '2-digit'});
-      }
-
-      // 渲染檔案
-      function renderFiles() {
-        console.log('renderFiles called, currentView:', currentView, 'currentFiles:', currentFiles.length);
-        console.log('Current files data:', currentFiles);
-        if (currentView === 'grid') {
-          renderFilesGrid();
-        } else {
-          renderFilesList();
-        }
-      }
-
-      // 渲染網格視圖
-      function renderFilesGrid() {
-        console.log('renderFilesGrid called');
-        const container = document.getElementById('filesGrid');
-        console.log('Grid container found:', !!container);
-        console.log('Current files count:', currentFiles.length);
-        console.log('Files data:', currentFiles);
-        
-        if (!container) {
-          console.error('Grid container not found!');
-          return;
-        }
-        
-        if (currentFiles.length === 0) {
-          console.log('No files to display');
-          container.innerHTML = '';
-          return;
-        }
-        
-        console.log('Starting to generate HTML for files...');
-        const html = currentFiles.map((file, index) => {
-          console.log(`Processing file ${index}:`, file);
-          const typeInfo = getFileTypeIcon(file.name);
-          console.log(`File type info for ${file.name}:`, typeInfo);
-          return `
-            <div class="file-card" data-file-id="${file.id}">
-              <div class="file-actions">
-                <button class="action-btn download" onclick="downloadFile('${file.downloadSlug}')" title="下載">
-                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
-                  </svg>
-                </button>
-                <button class="action-btn edit" onclick="editFile('${file.id}')" title="編輯">
-                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                  </svg>
-                </button>
-                <button class="action-btn delete" onclick="showDeleteConfirm('${file.id}', '${file.name}')" title="刪除">
-                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                  </svg>
-                </button>
-              </div>
-              <div class="file-icon ${typeInfo.class}">
-                ${typeInfo.icon}
-              </div>
-              <div class="file-name" title="${file.name}">${file.name}</div>
-              <div class="file-meta">${formatFileSize(file.sizeBytes)}</div>
-              <div class="file-stats">
-                <span>${file.downloads} 次下載</span>
-                <span class="file-status ${file.isActive ? 'active' : 'inactive'}">
-                  ${file.isActive ? '啟用' : '停用'}
-                </span>
-              </div>
-            </div>
-          `;
-        }).join('');
-        
-        console.log('Generated HTML length:', html.length);
-        console.log('Generated HTML preview:', html.substring(0, 200) + '...');
-        container.innerHTML = html;
-        console.log('HTML set to container, container children count:', container.children.length);
-      }
-
-      // 渲染列表視圖
-      function renderFilesList() {
-        const tbody = document.getElementById('filesTableBody');
-        
-        if (currentFiles.length === 0) {
-          tbody.innerHTML = '';
-          return;
-        }
-        
-        const html = currentFiles.map(file => {
-          const typeInfo = getFileTypeIcon(file.name);
-          return `
-            <tr data-file-id="${file.id}">
-              <td>
-                <div class="table-file-info">
-                  <div class="table-file-icon ${typeInfo.class}">
-                    ${typeInfo.icon}
-                  </div>
-                  <div class="table-file-details">
-                    <div class="table-file-name">${file.name}</div>
-                    <div class="table-file-meta">${file.originalName}</div>
-                  </div>
-                </div>
-              </td>
-              <td>${formatFileSize(file.sizeBytes)}</td>
-              <td>${file.downloads}</td>
-              <td>${formatDate(file.createdAt)}</td>
-              <td>
-                <div class="table-actions">
-                  <button class="action-btn download" onclick="downloadFile('${file.downloadSlug}')" title="下載">
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
-                    </svg>
-                  </button>
-                  <button class="action-btn edit" onclick="editFile('${file.id}')" title="編輯">
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                    </svg>
-                  </button>
-                  <button class="action-btn delete" onclick="showDeleteConfirm('${file.id}', '${file.name}')" title="刪除">
-                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }).join('');
-        
-        tbody.innerHTML = html;
-      }
-
-      // 顯示刪除確認對話框
-      function showDeleteConfirm(fileId, fileName) {
-        deleteFileId = fileId;
-        document.getElementById('deleteConfirmMessage').textContent = `您確定要刪除檔案「${fileName}」嗎？此操作無法撤銷。`;
-        document.getElementById('deleteConfirmDialog').classList.add('show');
-      }
-
-      // 隱藏刪除確認對話框
-      function hideDeleteConfirm() {
-        deleteFileId = null;
-        document.getElementById('deleteConfirmDialog').classList.remove('show');
-      }
-
-      // 確認刪除檔案
-      async function confirmDelete() {
-        if (!deleteFileId) return;
-        
-        try {
-          const response = await fetch(`/api/files/${deleteFileId}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`
-            }
-          });
-          
-          if (response.ok) {
-            hideDeleteConfirm();
-            loadFiles(); // 重新載入檔案列表
-            alert('檔案刪除成功！');
-          } else {
-            const error = await response.json();
-            alert(`刪除失敗：${error.message || '請稍後重試'}`);
-          }
-        } catch (error) {
-          console.error('Delete file error:', error);
-          alert('刪除失敗，請稍後重試');
-        }
-      }
-
-      // 下載檔案
-      function downloadFile(downloadSlug) {
-        window.open(`/download/${downloadSlug}`, '_blank');
-      }
-
-      // 編輯檔案
-      function editFile(fileId) {
-        // 這裡可以實現檔案編輯功能，例如重新命名或更改描述
-        const fileName = prompt('請輸入新的檔案名稱：');
-        if (fileName && fileName.trim()) {
-          updateFileName(fileId, fileName.trim());
-        }
-      }
-
-      // 更新檔案名稱
-      async function updateFileName(fileId, newName) {
-        try {
-          const response = await fetch(`/api/files/${fileId}`, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name: newName })
-          });
-          
-          if (response.ok) {
-            loadFiles(); // 重新載入檔案列表
-            alert('檔案名稱更新成功！');
-          } else {
-            const error = await response.json();
-            alert(`更新失敗：${error.message || '請稍後重試'}`);
-          }
-        } catch (error) {
-          console.error('Update file error:', error);
-          alert('更新失敗，請稍後重試');
-        }
-      }
-
-      // 載入檔案列表的更新版本
-      async function loadFiles() {
-        console.log('loadFiles called');
-        const loadingEl = document.getElementById('filesLoading');
-        const gridEl = document.getElementById('filesGrid');
-        const listEl = document.getElementById('filesList');
-        const emptyEl = document.getElementById('filesEmpty');
-        
-        console.log('DOM elements:', { loadingEl, gridEl, listEl, emptyEl });
-        
-        // 顯示載入狀態
-        if (loadingEl) loadingEl.style.display = 'block';
-        if (gridEl) gridEl.style.display = 'none';
-        if (listEl) listEl.style.display = 'none';
-        if (emptyEl) emptyEl.style.display = 'none';
-        
-        try {
-          console.log('Making API request with token:', accessToken ? 'exists' : 'missing');
-          const response = await fetch('/api/files', {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`
-            }
-          });
-          
-          console.log('API response status:', response.status);
-          
-          if (response.ok) {
-            const data = await response.json();
-            console.log('API response data:', data);
-            currentFiles = data.files || [];
-            console.log('currentFiles length:', currentFiles.length);
-            
-            // 隱藏載入狀態
-            if (loadingEl) loadingEl.style.display = 'none';
-            
-            if (currentFiles.length === 0) {
-              console.log('No files, showing empty state');
-              if (emptyEl) emptyEl.style.display = 'block';
-            } else {
-              console.log('Files found, currentView:', currentView);
-              // 根據當前視圖顯示對應內容
-              if (currentView === 'grid') {
-                console.log('Showing grid view');
-                if (gridEl) gridEl.style.display = 'grid';
-              } else {
-                console.log('Showing list view');
-                if (listEl) listEl.style.display = 'block';
-              }
-              renderFiles();
-            }
-          } else {
-            throw new Error('載入檔案失敗: ' + response.status);
-          }
-        } catch (error) {
-          console.error('Load files error:', error);
-          if (loadingEl) loadingEl.style.display = 'none';
-          if (emptyEl) {
-            emptyEl.style.display = 'block';
-            emptyEl.innerHTML = `
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <h3>載入失敗</h3>
-              <p>無法載入檔案列表：${error.message}</p>
-              <button class="btn btn-primary" onclick="loadFiles()">重新載入</button>
-            `;
-          }
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', () => {
-        init();
-      });
