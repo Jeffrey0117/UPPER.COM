@@ -1,4 +1,4 @@
-import express from "express";
+﻿import express from "express";
 import path from "path";
 import fs from "fs/promises";
 import { prisma } from "../app.js";
@@ -628,9 +628,9 @@ router.get(
         }
       </div>
       
-      <!-- 右側卡片 - 分上下兩個區塊 -->
+      <!-- 右側卡片 - 包含作者資訊和下載表單 -->
       <div class="card" style="padding: 0; display: flex; flex-direction: column; height: fit-content;">
-        <!-- 上方區塊 - 作者資訊 -->
+        <!-- 上方區域 - 作者資訊 -->
         <div style="background: rgba(59, 130, 246, 0.05); border-radius: 12px 12px 0 0; padding: 24px; border-bottom: 1px solid rgba(203, 213, 225, 0.3); position: relative;">
           <button onclick="toggleFollow()" id="followBtn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; transition: all 0.2s ease; padding: 4px;">
             <span id="heartIcon" style="color: #ef4444; font-size: 20px;">♡</span>
@@ -666,107 +666,104 @@ router.get(
             </div>
           </div>
         </div>
-        
-        <!-- 自定義內容區域 - 只包含下載表單 -->
-        <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 0 0 12px 12px; padding: 24px; flex: 1; min-height: 250px;\">
-          <!-- 下載表單 -->
-          <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 8px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.4); margin-bottom: 30px;\">
-            <h5 style=\"font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;\">免費下載</h5>
-            <form onsubmit=\"handleDownload(event)\">
-              <div style=\"margin-bottom: 12px;\">
-                <label style=\"display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;\">姓名 *</label>
-                <input type=\"text\" name=\"name\" required style=\"width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;\">
-              </div>
-              <div style=\"margin-bottom: 16px;\">
-                <label style=\"display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;\">電子郵件 *</label>
-                <input type=\"email\" name=\"email\" required style=\"width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;\">
-              </div>
-              <button type=\"submit\" style=\"background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);\">立即下載</button>
-            </form>
-          </div>
+
+        <!-- 下方區域 - 下載表單 -->
+        <div style="background: rgba(255, 255, 255, 0.8); border-radius: 0 0 12px 12px; padding: 24px;">
+          <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
+          <form onsubmit="handleDownload(event)">
+            <div style="margin-bottom: 12px;">
+              <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 *</label>
+              <input type="text" name="name" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;">
+            </div>
+            <div style="margin-bottom: 16px;">
+              <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">電子郵件 *</label>
+              <input type="email" name="email" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;">
+            </div>
+            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);">立即下載</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 內容簡介與會員評價 - 網格外單獨的完整寬度區域 -->
+    <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 30px; margin-top: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px);\">
+      <!-- 內容簡介 -->
+      <div style=\"margin-bottom: 40px;\">
+        <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">📖 內容簡介</h4>
+        <div style=\"color: #4b5563; line-height: 1.7; font-size: 15px; margin-bottom: 25px;\">
+          <p style=\"margin-bottom: 16px;\">情緒像聽覺，是不斷流動的訊息，<br>
+          關不掉、停不下來，影響每一分鐘的思考。<br>
+          感受沒有對錯，壓抑、焦慮、恐懼，是因為我們不了解。<br>
+          學會表達感受的技能，任何性格都能更專注、果斷、自在相處！</p>
         </div>
 
-        <!-- 內容簡介與會員評價 - 合併為大區域，放在頁面底部 -->
-        <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 30px; margin-top: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px);\">
-          <!-- 內容簡介 -->
-          <div style=\"margin-bottom: 40px;\">
-            <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">內容簡介</h4>
-            <div style=\"color: #4b5563; line-height: 1.7; font-size: 15px; margin-bottom: 25px;\">
-              <p style=\"margin-bottom: 16px;\">情緒像聽覺，是不斷流動的訊息，<br>
-              關不掉、停不下來，影響每一分鐘的思考。<br>
-              感受沒有對錯，壓抑、焦慮、恐懼，是因為我們不了解。<br>
-              學會表達感受的技能，任何性格都能更專注、果斷、自在相處！</p>
-            </div>
+        <div style=\"background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;\">
+          <h5 style=\"font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 12px;\">✨ 重磅推薦</h5>
+          <p style=\"margin-bottom: 8px; color: #374151; font-size: 14px;\">《恆毅力》作者　安琪拉．達克沃斯（Angela Duckworth）</p>
+          <p style=\"margin: 0; color: #374151; font-size: 14px;\">《心態致勝》作者　卡蘿．杜維克（Carol Dweck ）</p>
+        </div>
+      </div>
 
-            <div style=\"background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;\">
-              <h5 style=\"font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 12px;\">重磅推薦</h5>
-              <p style=\"margin-bottom: 8px; color: #374151; font-size: 14px;\">《恆毅力》作者　安琪拉．達克沃斯（Angela Duckworth）</p>
-              <p style=\"margin: 0; color: #374151; font-size: 14px;\">《心態致勝》作者　卡蘿．杜維克（Carol Dweck ）</p>
+      <!-- 會員評價 -->
+      <div>
+        <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">⭐ 會員評價</h4>
+
+        <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;\">
+          <!-- Review 1 -->
+          <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 10px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\">
+            <div style=\"display: flex; align-items: center; gap: 15px; margin-bottom: 12px;\">
+              <div style=\"width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;\">
+                李
+              </div>
+              <div>
+                <h6 style=\"font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;\">李小明</h6>
+                <div style=\"display: flex; align-items: center; gap: 8px;\">
+                  <div style=\"color: #fbbf24; font-size: 14px;\">★★★★★</div>
+                  <span style=\"color: #6b7280; font-size: 13px;\">5.0</span>
+                </div>
+              </div>
             </div>
+            <p style=\"color: #4b5563; line-height: 1.6; margin: 0; font-size: 14px;\">
+              \"這份資料真的很實用！內容詳細又容易理解，幫助我解決了工作上的許多問題。作者的專業度很高，推薦給所有需要的朋友！\"
+            </p>
           </div>
 
-          <!-- 會員評價 -->
-          <div>
-            <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">會員評價</h4>
-
-            <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;\">
-              <!-- Review 1 -->
-              <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 10px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\">
-                <div style=\"display: flex; align-items: center; gap: 15px; margin-bottom: 12px;\">
-                  <div style=\"width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;\">
-                    李
-                  </div>
-                  <div>
-                    <h6 style=\"font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;\">李小明</h6>
-                    <div style=\"display: flex; align-items: center; gap: 8px;\">
-                      <div style=\"color: #fbbf24; font-size: 14px;\">★★★★★</div>
-                      <span style=\"color: #6b7280; font-size: 13px;\">5.0</span>
-                    </div>
-                  </div>
-                </div>
-                <p style=\"color: #4b5563; line-height: 1.6; margin: 0; font-size: 14px;\">
-                  \"這份資料真的很實用！內容詳細又容易理解，幫助我解決了工作上的許多問題。作者的專業度很高，推薦給所有需要的朋友！\"
-                </p>
+          <!-- Review 2 -->
+          <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 10px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\">
+            <div style=\"display: flex; align-items: center; gap: 15px; margin-bottom: 12px;\">
+              <div style=\"width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;\">
+                陳
               </div>
-
-              <!-- Review 2 -->
-              <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 10px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\">
-                <div style=\"display: flex; align-items: center; gap: 15px; margin-bottom: 12px;\">
-                  <div style=\"width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;\">
-                    陳
-                  </div>
-                  <div>
-                    <h6 style=\"font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;\">陳美華</h6>
-                    <div style=\"display: flex; align-items: center; gap: 8px;\">
-                      <div style=\"color: #fbbf24; font-size: 14px;\">★★★★★</div>
-                      <span style=\"color: #6b7280; font-size: 13px;\">5.0</span>
-                    </div>
-                  </div>
+              <div>
+                <h6 style=\"font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;\">陳美華</h6>
+                <div style=\"display: flex; align-items: center; gap: 8px;\">
+                  <div style=\"color: #fbbf24; font-size: 14px;\">★★★★★</div>
+                  <span style=\"color: #6b7280; font-size: 13px;\">5.0</span>
                 </div>
-                <p style=\"color: #4b5563; line-height: 1.6; margin: 0; font-size: 14px;\">
-                  \"免費就能獲得這麼高品質的內容，真的太感動了！西譯社的資料都很精心製作，每次下載都有收穫。已經推薦給同事了！\"
-                </p>
-              </div>
-
-              <!-- Review 3 -->
-              <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 10px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\">
-                <div style=\"display: flex; align-items: center; gap: 15px; margin-bottom: 12px;\">
-                  <div style=\"width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;\">
-                    王
-                  </div>
-                  <div>
-                    <h6 style=\"font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;\">王大偉</h6>
-                    <div style=\"display: flex; align-items: center; gap: 8px;\">
-                      <div style=\"color: #fbbf24; font-size: 14px;\">★★★★☆</div>
-                      <span style=\"color: #6b7280; font-size: 13px;\">4.8</span>
-                    </div>
-                  </div>
-                </div>
-                <p style=\"color: #4b5563; line-height: 1.6; margin: 0; font-size: 14px;\">
-                  \"內容非常豐富，排版也很清楚。雖然有些部分需要更深入的說明，但整體來說是很棒的資源。作者很用心在製作，值得支持！\"
-                </p>
               </div>
             </div>
+            <p style=\"color: #4b5563; line-height: 1.6; margin: 0; font-size: 14px;\">
+              \"免費就能獲得這麼高品質的內容，真的太感動了！西譯社的資料都很精心製作，每次下載都有收穫。已經推薦給同事了！\"
+            </p>
+          </div>
+
+          <!-- Review 3 -->
+          <div style=\"background: rgba(248, 250, 252, 0.8); border-radius: 10px; padding: 20px; border: 1px solid rgba(203, 213, 225, 0.2); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);\">
+            <div style=\"display: flex; align-items: center; gap: 15px; margin-bottom: 12px;\">
+              <div style=\"width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;\">
+                王
+              </div>
+              <div>
+                <h6 style=\"font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;\">王大偉</h6>
+                <div style=\"display: flex; align-items: center; gap: 8px;\">
+                  <div style=\"color: #fbbf24; font-size: 14px;\">★★★★☆</div>
+                  <span style=\"color: #6b7280; font-size: 13px;\">4.8</span>
+                </div>
+              </div>
+            </div>
+            <p style=\"color: #4b5563; line-height: 1.6; margin: 0; font-size: 14px;\">
+              \"內容非常豐富，排版也很清楚。雖然有些部分需要更深入的說明，但整體來說是很棒的資源。作者很用心在製作，值得支持！\"
+            </p>
           </div>
         </div>
       </div>
@@ -942,6 +939,7 @@ router.get(
       }
     }
   </script>
+
 </body>
 </html>`);
     } catch (error) {
@@ -1099,10 +1097,10 @@ router.get(
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
     
     /* Navigation */
-    .nav { 
-      background: rgba(255, 255, 255, 0.95); 
-      border-bottom: 1px solid #e2e8f0; 
-      padding: 20px 40px; 
+    .nav {
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 40px;
       margin: -20px -20px 40px -20px;
       backdrop-filter: blur(10px);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -1113,7 +1111,54 @@ router.get(
     .nav-links { display: flex; gap: 30px; align-items: center; }
     .nav-links a { color: #6b7280; text-decoration: none; transition: color 0.3s ease; }
     .nav-links a:hover { color: #3b82f6; }
-    
+
+    /* User Banner */
+    .user-banner {
+      width: 100%;
+      height: 220px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 12px;
+      margin-bottom: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+    }
+
+    .banner-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .banner-content {
+      text-align: center;
+      color: white;
+      z-index: 2;
+    }
+
+    .banner-welcome {
+      font-size: 18px;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    .banner-title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .banner-subtitle {
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
     /* Profile Layout */
     .profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 40px; }
     
@@ -1291,6 +1336,24 @@ router.get(
     .file-icon-mp3, .file-icon-wav, .file-icon-flac, .file-icon-aac { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
     .file-icon-html, .file-icon-css, .file-icon-js, .file-icon-json { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
     
+    /* User Banner Responsive */
+    @media (max-width: 768px) {
+      .user-banner {
+        height: 120px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+      }
+
+      .banner-title {
+        font-size: 24px;
+      }
+
+      .banner-subtitle,
+      .banner-welcome {
+        font-size: 14px;
+      }
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .profile-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -1314,7 +1377,18 @@ router.get(
         </div>
       </div>
     </nav>
-    
+
+    <!-- User Banner -->
+    <div class="user-banner">
+      <div class="banner-overlay">
+        <div class="banner-content">
+          <div class="banner-welcome">歡迎來到</div>
+          <div class="banner-title">${user.name}</div>
+          <div class="banner-subtitle">發現精彩的內容與資源</div>
+        </div>
+      </div>
+    </div>
+
     <div class="profile-grid">
       <!-- Left Sidebar - User Information -->
       <div class="user-sidebar">
@@ -1411,7 +1485,83 @@ router.get(
       </div>
     </div>
   </div>
-  
+
+  <!-- Footer -->
+  <footer style="background: #f9fafb; color: #6b7280; padding: 48px 0; margin-top: 60px;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; margin-bottom: 32px;">
+        <div>
+          <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 16px; color: #1f2937;">Upper</h3>
+          <p style="color: #6b7280; line-height: 1.6;">專業的檔案分享與引流磁鐵平台</p>
+        </div>
+        <div>
+          <h4 style="font-weight: 600; margin-bottom: 16px; color: #1f2937;">產品</h4>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">功能特色</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">方案價格</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">API 文件</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-weight: 600; margin-bottom: 16px; color: #1f2937;">支援</h4>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">幫助中心</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">聯絡我們</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">狀態頁面</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 style="font-weight: 600; margin-bottom: 16px; color: #1f2937;">公司</h4>
+          <ul style="list-style: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">關於我們</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">隱私政策</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="#" style="color: #6b7280; text-decoration: none; transition: color 0.3s ease;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#6b7280'">服務條款</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div style="border-top: 1px solid #e5e7eb; padding-top: 32px; text-align: center; color: #9ca3af;">
+        <p>&copy; 2025 Upper. All rights reserved.</p>
+      </div>
+    </div>
+
+    <!-- Footer Responsive Styles -->
+    <style>
+      @media (max-width: 768px) {
+        footer > div > div:first-child {
+          grid-template-columns: repeat(2, 1fr) !important;
+          gap: 20px !important;
+        }
+      }
+      @media (max-width: 480px) {
+        footer > div > div:first-child {
+          grid-template-columns: 1fr !important;
+        }
+        footer {
+          padding: 32px 0 24px 0 !important;
+          margin-top: 40px !important;
+        }
+      }
+    </style>
+  </footer>
+
   <script>
     // Add any interactive features here
   </script>
