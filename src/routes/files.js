@@ -96,9 +96,11 @@ router.get(
         downloads: file.downloads,
         downloadSlug: file.downloadSlug,
         description: file.description,
+        content: file.content,
         isActive: file.isActive,
         sizeBytes: file.sizeBytes,
         mimeType: file.mimeType,
+        storageKey: file.storageKey,
         createdAt: file.createdAt,
         downloadUrl: `/download/${file.downloadSlug}`,
         pageUrl: `/download-page/xiyi-download?file=${file.downloadSlug}`,
@@ -119,7 +121,7 @@ router.post(
       });
     }
 
-    const { name, description } = req.body;
+    const { name, description, content } = req.body;
 
     // 修正中文檔名顯示問題
     const originalName = Buffer.from(req.file.originalname, "latin1").toString(
@@ -128,31 +130,46 @@ router.post(
     const displayName = name || originalName;
 
     // 生成檔案簽名用於重複檢測
-    const fileSignature = generateFileSignature(req.user.id, originalName, req.file.size);
+    const fileSignature = generateFileSignature(
+      req.user.id,
+      originalName,
+      req.file.size
+    );
 
-    logger.info(`檔案上傳請求 - 用戶: ${req.user.id}, 檔案: ${originalName}, 簽名: ${fileSignature}`);
+    logger.info(
+      `檔案上傳請求 - 用戶: ${req.user.id}, 檔案: ${originalName}, 簽名: ${fileSignature}`
+    );
 
-    // 檢查是否正在處理相同檔案
+    // 檢查是否正在處理相同檔案（優化衝突檢測邏輯）
     if (processingFiles.has(fileSignature)) {
-      // 刪除重複上傳的物理檔案
-      try {
-        await fs.unlink(path.join("./uploads", req.file.filename));
-      } catch (error) {
-        logger.warn(`無法刪除重複檔案: ${req.file.filename}`);
-      }
+      const processingInfo = processingFiles.get(fileSignature);
+      const processingTime = Date.now() - processingInfo.startTime;
 
-      return res.status(409).json({
-        success: false,
-        message: "檔案正在處理中，請勿重複上傳",
-        code: "PROCESSING"
-      });
+      // 如果處理時間超過5秒，認為可能是殭屍進程，允許重新處理
+      if (processingTime > 5000) {
+        logger.warn(`檔案處理超時，清除處理標記: ${fileSignature}`);
+        processingFiles.delete(fileSignature);
+      } else {
+        // 刪除重複上傳的物理檔案
+        try {
+          await fs.unlink(path.join("./uploads", req.file.filename));
+        } catch (error) {
+          logger.warn(`無法刪除重複檔案: ${req.file.filename}`);
+        }
+
+        return res.status(409).json({
+          success: false,
+          message: "檔案正在處理中，請稍後再試",
+          code: "PROCESSING",
+        });
+      }
     }
 
     // 標記檔案正在處理
     processingFiles.set(fileSignature, {
       userId: req.user.id,
       originalName: originalName,
-      startTime: Date.now()
+      startTime: Date.now(),
     });
 
     // 設定自動清理
@@ -204,6 +221,7 @@ router.post(
           sizeBytes: req.file.size,
           downloadSlug,
           description: description || null,
+          content: content || null,
         },
       });
 
@@ -223,11 +241,10 @@ router.post(
           pageUrl: `/download-page/xiyi-download?file=${file.downloadSlug}`,
         },
       });
-
     } catch (error) {
       // 發生錯誤時移除處理標記
       processingFiles.delete(fileSignature);
-      
+
       // 清理上傳的檔案
       try {
         await fs.unlink(path.join("./uploads", req.file.filename));
@@ -270,6 +287,7 @@ router.get(
         downloads: file.downloads,
         downloadSlug: file.downloadSlug,
         description: file.description,
+        content: file.content,
         isActive: file.isActive,
         sizeBytes: file.sizeBytes,
         mimeType: file.mimeType,
@@ -286,7 +304,7 @@ router.put(
   "/:id",
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { name, description, isActive } = req.body;
+    const { name, description, content, isActive } = req.body;
 
     const file = await prisma.file.findFirst({
       where: {
@@ -307,6 +325,7 @@ router.put(
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
+        ...(content !== undefined && { content }),
         ...(isActive !== undefined && { isActive }),
         updatedAt: new Date(),
       },

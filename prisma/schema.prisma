@@ -48,6 +48,7 @@ model File {
   downloads     Int      @default(0)
   downloadSlug  String?  @unique @map("download_slug") // 改為可選
   description   String?
+  content       String?  // 新增詳細內容描述欄位
   isActive      Boolean  @default(true) @map("is_active")
   isCreated     Boolean  @default(false) @map("is_created") // 新增：是否為線上創建的檔案
   isPublic      Boolean  @default(false) @map("is_public") // 新增：檔案是否公開顯示在使用者頁面
@@ -55,8 +56,9 @@ model File {
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pages Page[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages     Page[]     // 保留舊的關聯以向後兼容
+  pageFiles PageFile[] // 新的多對多關聯
 
   @@map("files")
 }
@@ -79,9 +81,10 @@ model Page {
   updatedAt      DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  file  File? @relation(fields: [fileId], references: [id], onDelete: SetNull)
-  leads Lead[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  file      File?      @relation(fields: [fileId], references: [id], onDelete: SetNull) // 保留舊的關聯以向後兼容
+  leads     Lead[]
+  pageFiles PageFile[] // 新的多對多關聯
 
   @@map("pages")
 }
@@ -120,6 +123,25 @@ model Analytics {
   @@index([event])
   @@index([createdAt])
   @@map("analytics")
+}
+
+// 新增 PageFile 中介模型用於多對多關聯
+model PageFile {
+  id        Int      @id @default(autoincrement())
+  pageId    Int      @map("page_id")
+  fileId    Int      @map("file_id") 
+  position  Int      @default(0) // 檔案在頁面中的順序
+  isPrimary Boolean  @default(false) @map("is_primary") // 是否為主要檔案
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, fileId]) // 防止重複關聯
+  @@index([pageId])
+  @@index([fileId])
+  @@map("page_files")
 }
 
 // 移除 enum，改用字串常數

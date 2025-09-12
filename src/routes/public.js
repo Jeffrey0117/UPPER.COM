@@ -799,17 +799,28 @@ router.get(
       <div style=\"margin-bottom: 40px;\">
         <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">📖 內容簡介</h4>
         <div style=\"color: #4b5563; line-height: 1.7; font-size: 15px; margin-bottom: 25px;\">
-          <p style=\"margin-bottom: 16px;\">情緒像聽覺，是不斷流動的訊息，<br>
-          關不掉、停不下來，影響每一分鐘的思考。<br>
-          感受沒有對錯，壓抑、焦慮、恐懼，是因為我們不了解。<br>
-          學會表達感受的技能，任何性格都能更專注、果斷、自在相處！</p>
+          ${
+            fileInfo && fileInfo.content
+              ? `<div style="white-space: pre-wrap;">${fileInfo.content}</div>`
+              : pageToRender.description &&
+                pageToRender.description !== "免費下載資源，立即獲取實用內容。"
+              ? `<p style="margin-bottom: 16px;">${pageToRender.description}</p>`
+              : `<p style="margin-bottom: 16px;">這是一個精彩的內容資源，提供實用的知識與工具。<br>
+                   下載後您將獲得詳細的內容介紹與使用說明。<br>
+                   我們致力於提供高品質的學習資料，幫助您提升技能與知識。<br>
+                   立即填寫表單，免費獲取這份珍貴的資源！</p>`
+          }
         </div>
-
-        <div style=\"background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;\">
-          <h5 style=\"font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 12px;\">✨ 重磅推薦</h5>
-          <p style=\"margin-bottom: 8px; color: #374151; font-size: 14px;\">《恆毅力》作者　安琪拉．達克沃斯（Angela Duckworth）</p>
-          <p style=\"margin: 0; color: #374151; font-size: 14px;\">《心態致勝》作者　卡蘿．杜維克（Carol Dweck ）</p>
-        </div>
+        
+        ${
+          fileInfo && fileInfo.content
+            ? "" // 如果有動態內容，就不顯示推薦區塊
+            : `<div style="background: rgba(59, 130, 246, 0.05); border-left: 3px solid #3b82f6; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
+                 <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 12px;">✨ 推薦資源</h5>
+                 <p style="margin-bottom: 8px; color: #374151; font-size: 14px;">專業團隊精心製作</p>
+                 <p style="margin: 0; color: #374151; font-size: 14px;">實用性與專業性並重</p>
+               </div>`
+        }
       </div>
 
       <!-- 會員評價 -->

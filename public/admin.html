@@ -448,6 +448,133 @@
         gap: 0.5rem;
       }
       
+      /* 快速操作卡片網格樣式 */
+      .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-top: 1.5rem;
+      }
+      
+      @media (min-width: 768px) {
+        .quick-actions-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      
+      @media (min-width: 1024px) {
+        .quick-actions-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      
+      .action-card {
+        background: linear-gradient(135deg, var(--card-bg-start), var(--card-bg-end));
+        border: none;
+        border-radius: 1rem;
+        padding: 2rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 220px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      /* 背景顏色定義 */
+      .action-card.file-creator {
+        --card-bg-start: #667eea;
+        --card-bg-end: #764ba2;
+      }
+      
+      .action-card.upload {
+        --card-bg-start: #f093fb;
+        --card-bg-end: #f5576c;
+      }
+      
+      .action-card.new-page {
+        --card-bg-start: #4facfe;
+        --card-bg-end: #00f2fe;
+      }
+      
+      .action-card.analytics {
+        --card-bg-start: #43e97b;
+        --card-bg-end: #38f9d7;
+      }
+      
+      /* 添加背景紋理效果 */
+      .action-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 20px 20px;
+        transform: rotate(30deg);
+        opacity: 0.3;
+      }
+      
+      .action-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      }
+      
+      .action-card:hover::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      
+      .action-card-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        margin-bottom: 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 1;
+      }
+      
+      .action-card-icon svg {
+        width: 36px;
+        height: 36px;
+        stroke-width: 2.5;
+      }
+      
+      .action-card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.75rem;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      
+      .action-card-description {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.5;
+        position: relative;
+        z-index: 1;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      
       /* Image Manager Styles */
       .image-manager {
         border: 1px solid #e5e7eb;
@@ -745,12 +872,16 @@
         color: #dc2626;
       }
 
-      .action-btn.edit {
-        color: #3b82f6;
+      .action-btn.preview {
+        color: #8b5cf6;
       }
 
       .action-btn.download {
         color: #059669;
+      }
+      
+      .action-btn.edit {
+        color: #f59e0b;
       }
 
       /* 列表視圖 */
@@ -1041,9 +1172,241 @@
         justify-content: space-between;
         align-items: center;
       }
+      
+      /* 檔案預覽模態框樣式 */
+      .file-preview-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .file-preview-modal.show {
+        display: flex;
+      }
+      
+      .file-preview-content {
+        background: white;
+        border-radius: 0.75rem;
+        max-width: 95vw;
+        max-height: 95vh;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+      }
+      
+      /* PDF預覽器樣式 */
+      .pdf-viewer-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .pdf-controls {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      
+      .pdf-nav-controls, .pdf-zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      
+      .pdf-nav-controls button,
+      .pdf-zoom-controls button {
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      
+      .pdf-nav-controls button:hover,
+      .pdf-zoom-controls button:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+      }
+      
+      .pdf-nav-controls button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      
+      .pdf-nav-controls span {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0 0.5rem;
+      }
+      
+      .pdf-zoom-controls span {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0 0.5rem;
+        min-width: 3rem;
+        text-align: center;
+      }
+      
+      .pdf-canvas-container {
+        flex: 1;
+        overflow: auto;
+        padding: 1rem;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      
+      .pdf-canvas-container canvas {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        max-width: 100%;
+        height: auto;
+      }
+      
+      .pdf-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: #6b7280;
+      }
+      
+      .pdf-error {
+        text-align: center;
+        padding: 2rem;
+        color: #dc2626;
+      }
+      
+      .file-preview-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f9fafb;
+      }
+      
+      .file-preview-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        margin: 0;
+      }
+      
+      .file-preview-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .file-preview-close:hover {
+        background: #f3f4f6;
+        color: #374151;
+      }
+      
+      .file-preview-body {
+        padding: 1.5rem;
+        max-height: calc(90vh - 80px);
+        overflow: auto;
+        flex: 1;
+      }
+      
+      .file-preview-image {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+      }
+      
+      .file-preview-text {
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        border: 1px solid #e5e7eb;
+      }
+      
+      .file-preview-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: #6b7280;
+      }
+      
+      .file-preview-error {
+        text-align: center;
+        padding: 2rem;
+        color: #dc2626;
+      }
+      
+      .file-preview-info {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+      }
+      
+      .file-preview-download-btn {
+        background: #3b82f6;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      
+      .file-preview-download-btn:hover {
+        background: #2563eb;
+      }
     </style>
-  </head>
   <body>
+    <!-- PDF.js Integration -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+      if (typeof pdfjsLib !== 'undefined') {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+    </script>
     <div class="admin-layout">
       <!-- Sidebar -->
       <nav class="sidebar">
@@ -1127,7 +1490,7 @@
               </svg>
               潛在客戶
             </a>
-            <a href="#file-creator" class="nav-item" data-tab="file-creator">
+            <a href="#analytics" class="nav-item" data-tab="analytics">
               <svg
                 class="nav-icon"
                 fill="none"
@@ -1138,10 +1501,10 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M12 4v16m8-8H4"
+                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                 />
               </svg>
-              檔案製作
+              數據分析
             </a>
           </div>
         </div>
@@ -1257,58 +1620,50 @@
                 <h3 class="card-title">快速操作</h3>
               </div>
               <div class="card-content">
-                <div class="flex gap-2">
-                  <button class="btn btn-primary" onclick="switchTab('files')">
-                    <svg
-                      style="width: 1rem; height: 1rem; margin-right: 0.5rem"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    上傳檔案
-                  </button>
-                  <button class="btn btn-success" onclick="switchTab('pages')">
-                    <svg
-                      style="width: 1rem; height: 1rem; margin-right: 0.5rem"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                      />
-                    </svg>
-                    新增下載頁
-                  </button>
-                  <button
-                    class="btn btn-secondary"
-                    onclick="switchTab('analytics')"
-                  >
-                    <svg
-                      style="width: 1rem; height: 1rem; margin-right: 0.5rem"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                      />
-                    </svg>
-                    查看數據
-                  </button>
+                <div class="quick-actions-grid">
+                  <!-- 檔案製作卡片 -->
+                  <a href="/file-creator.html" target="_blank" class="action-card file-creator">
+                    <div class="action-card-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                    </div>
+                    <div class="action-card-title">檔案製作</div>
+                    <div class="action-card-description">建立和編輯專業的檔案內容</div>
+                  </a>
+                  
+                  <!-- 上傳檔案卡片 -->
+                  <div class="action-card upload" onclick="handleUploadClick()">
+                    <div class="action-card-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                      </svg>
+                    </div>
+                    <div class="action-card-title">上傳檔案</div>
+                    <div class="action-card-description">快速上傳檔案到系統</div>
+                  </div>
+                  
+                  <!-- 新增下載頁卡片 -->
+                  <div class="action-card new-page" onclick="handleNewPageClick()">
+                    <div class="action-card-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                      </svg>
+                    </div>
+                    <div class="action-card-title">新增下載頁</div>
+                    <div class="action-card-description">創建專屬的檔案下載頁面</div>
+                  </div>
+                  
+                  <!-- 查看數據卡片 -->
+                  <div class="action-card analytics" onclick="switchTab('analytics')">
+                    <div class="action-card-icon">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                      </svg>
+                    </div>
+                    <div class="action-card-title">查看數據</div>
+                    <div class="action-card-description">分析下載和訪問統計數據</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1444,12 +1799,6 @@
                   </svg>
                   <h3>還沒有檔案</h3>
                   <p>上傳您的第一個檔案開始使用</p>
-                  <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
-                      <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                    </svg>
-                    上傳檔案
-                  </button>
                 </div>
               </div>
             </div>
@@ -1520,37 +1869,73 @@
             </div>
           </div>
 
-          <!-- File Creator Tab -->
-          <div id="file-creator-tab" class="tab-content">
+          <!-- Analytics Tab -->
+          <div id="analytics-tab" class="tab-content">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">線上檔案製作</h3>
-                <button class="btn btn-primary" onclick="window.open('/file-creator.html', '_blank')">
-                  開啟檔案製作工具
-                </button>
+                <h3 class="card-title">數據分析</h3>
+                <div class="flex gap-2">
+                  <button class="btn btn-secondary" onclick="loadAnalytics()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
+                      <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                    重新整理
+                  </button>
+                  <button class="btn btn-primary" onclick="exportAnalytics()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
+                      <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
+                    </svg>
+                    匯出報告
+                  </button>
+                </div>
               </div>
               <div class="card-content">
-                <p style="color: #6b7280; margin-bottom: 1rem;">
-                  直接在瀏覽器中創建各種格式的檔案，支援 TXT、JSON、CSV、HTML、XML、Markdown、PDF 等格式。
-                </p>
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="feature-item">
-                    <h4>支援格式</h4>
-                    <ul class="feature-list">
-                      <li>純文字 (TXT)</li>
-                      <li>結構化數據 (JSON, CSV, XML)</li>
-                      <li>網頁文件 (HTML)</li>
-                      <li>文檔格式 (Markdown, PDF)</li>
-                    </ul>
+                <div id="analyticsLoading" class="loading">
+                  <div class="spinner"></div>
+                  <p>載入數據分析中...</p>
+                </div>
+
+                <div id="analyticsContent" class="hidden">
+                  <!-- Analytics Overview -->
+                  <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="card">
+                      <div class="card-content">
+                        <h4 class="text-lg font-semibold mb-2">總訪問量</h4>
+                        <div class="text-3xl font-bold text-blue-600" id="totalViews">0</div>
+                        <p class="text-sm text-gray-600 mt-1">今日: <span id="todayViews">0</span></p>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-content">
+                        <h4 class="text-lg font-semibold mb-2">轉換率</h4>
+                        <div class="text-3xl font-bold text-green-600" id="conversionRate">0%</div>
+                        <p class="text-sm text-gray-600 mt-1">平均轉換率</p>
+                      </div>
+                    </div>
                   </div>
-                  <div class="feature-item">
-                    <h4>快速模板</h4>
-                    <ul class="feature-list">
-                      <li>預設模板快速開始</li>
-                      <li>即時預覽和編輯</li>
-                      <li>自動產生分享頁面</li>
-                      <li>檔案統計追蹤</li>
-                    </ul>
+
+                  <!-- Top Performing Pages -->
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">熱門頁面</h3>
+                    </div>
+                    <div class="card-content">
+                      <div id="topPagesList">
+                        <p class="text-gray-500 text-center py-4">載入中...</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Recent Activity -->
+                  <div class="card mt-4">
+                    <div class="card-header">
+                      <h3 class="card-title">最近活動</h3>
+                    </div>
+                    <div class="card-content">
+                      <div id="recentActivity">
+                        <p class="text-gray-500 text-center py-4">載入中...</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1900,31 +2285,49 @@
       // 更新用戶狀態顯示
       function updateUserStatus(isLoggedIn, user = null) {
         const userInfo = document.querySelector('.user-info');
+        const logoutBtn = document.querySelector('button[onclick="logout()"]');
+        
         if (!userInfo) return;
         
         if (isLoggedIn && user) {
-          userInfo.style.display = 'flex';
-          userInfo.innerHTML = `
-            <img src="${user.avatar}" alt="${user.name}" class="user-avatar">
-            <div class="user-details">
-              <div class="user-name">${user.name}</div>
-              <div class="user-email">${user.email}</div>
-            </div>
-            <div class="user-menu">
-              <button onclick="logout()" class="btn btn-secondary">登出</button>
-            </div>
-          `;
+          // 更新用戶頭像和名稱
+          const userAvatar = document.getElementById('userAvatar');
+          const userName = document.getElementById('userName');
+          
+          if (userAvatar) {
+            const avatar = user.avatar || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%233b82f6'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3E" + (user.name ? user.name.charAt(0).toUpperCase() : 'U') + "%3C/text%3E%3C/svg%3E";
+            userAvatar.src = avatar;
+          }
+          
+          if (userName) {
+            userName.textContent = user.name || user.email;
+          }
+          
+          // 顯示登出按鈕
+          if (logoutBtn) {
+            logoutBtn.style.display = 'inline-flex';
+          }
         } else {
-          userInfo.style.display = 'flex';
-          userInfo.innerHTML = `
-            <div class="user-details">
-              <div class="user-name">未登入</div>
-              <div class="user-email">請登入以管理檔案</div>
-            </div>
-            <div class="user-menu">
-              <button onclick="window.open('/quick-login.html', '_blank')" class="btn btn-primary">登入</button>
-            </div>
-          `;
+          // 未登入狀態
+          const userAvatar = document.getElementById('userAvatar');
+          const userName = document.getElementById('userName');
+          
+          if (userAvatar) {
+            userAvatar.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%236b7280'/%3E%3Ctext x='20' y='26' text-anchor='middle' fill='white' font-size='16' font-family='Arial'%3E?%3C/text%3E%3C/svg%3E";
+          }
+          
+          if (userName) {
+            userName.textContent = '未登入';
+          }
+          
+          // 登出按鈕改為登入按鈕
+          if (logoutBtn) {
+            logoutBtn.textContent = '登入';
+            logoutBtn.className = 'btn btn-primary';
+            logoutBtn.onclick = function() {
+              window.open('/dev-login.html', '_blank');
+            };
+          }
         }
       }
 
@@ -1961,7 +2364,8 @@
 
       // 獲取檔案類型圖標
       function getFileTypeIcon(filename) {
-        const extension = filename.split('.').pop().toLowerCase();
+        if (!filename) return fileTypeIcons.default;
+        const extension = filename.split('.').pop()?.toLowerCase() || '';
         return fileTypeIcons[extension] || fileTypeIcons.default;
       }
 
@@ -2023,6 +2427,12 @@
                     <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
                   </svg>
                 </button>
+                <button class="action-btn preview" onclick="previewFile('${file.id}')" title="線上閱讀">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
                 <button class="action-btn edit" onclick="editFile('${file.id}')" title="編輯">
                   <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -2037,7 +2447,7 @@
               <div class="file-icon ${typeInfo.class}">
                 ${typeInfo.icon}
               </div>
-              <div class="file-name" title="${file.name}">${file.name}</div>
+              <div class="file-name" onclick="previewFile('${file.id}')" title="${file.name}" style="cursor: pointer; color: #3b82f6; text-decoration: underline;">${file.name}</div>
               <div class="file-meta">${formatFileSize(file.sizeBytes)}</div>
               <div class="file-stats">
                 <span>${file.downloads} 次下載</span>
@@ -2074,7 +2484,7 @@
                     ${typeInfo.icon}
                   </div>
                   <div class="table-file-details">
-                    <div class="table-file-name">${file.name}</div>
+                    <div class="table-file-name" onclick="previewFile('${file.id}')" style="cursor: pointer; color: #3b82f6; text-decoration: underline;">${file.name}</div>
                     <div class="table-file-meta">${file.originalName}</div>
                   </div>
                 </div>
@@ -2087,6 +2497,12 @@
                   <button class="action-btn download" onclick="downloadFile('${file.downloadSlug}')" title="下載">
                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn preview" onclick="previewFile('${file.id}')" title="線上閱讀">
+                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
                   </button>
                   <button class="action-btn edit" onclick="editFile('${file.id}')" title="編輯">
@@ -2314,19 +2730,51 @@
 
       // Tab Management
       function switchTab(tabName) {
+        console.log('switchTab called with:', tabName);
+        
         // Update navigation
         document.querySelectorAll(".nav-item").forEach((item) => {
           item.classList.remove("active");
         });
-        document
-          .querySelector(`[data-tab="${tabName}"]`)
-          .classList.add("active");
+        
+        // Find and activate navigation item with null check
+        const navElement = document.querySelector(`[data-tab="${tabName}"]`);
+        console.log('Nav element found:', navElement);
+        
+        if (navElement) {
+          navElement.classList.add("active");
+        } else {
+          console.error('Nav element not found for tab:', tabName);
+          console.error('Looking for element with data-tab:', tabName);
+          
+          // List all available data-tab elements for debugging
+          const allDataTabs = document.querySelectorAll('[data-tab]');
+          console.log('Available data-tab elements:');
+          allDataTabs.forEach(el => console.log('  -', el.getAttribute('data-tab')));
+          return; // Exit early if nav element not found
+        }
 
         // Update content
         document.querySelectorAll(".tab-content").forEach((content) => {
           content.classList.remove("active");
         });
-        document.getElementById(`${tabName}-tab`).classList.add("active");
+        
+        // Find and activate tab content with null check
+        const tabContent = document.getElementById(`${tabName}-tab`);
+        console.log('Tab content element found:', tabContent);
+        
+        if (tabContent) {
+          tabContent.classList.add("active");
+          console.log('Successfully activated tab:', tabName);
+        } else {
+          console.error('Tab content element not found for tab:', tabName);
+          console.error('Looking for element with ID:', tabName + '-tab');
+          
+          // List all available tab content elements
+          const allTabContents = document.querySelectorAll('[id$="-tab"]');
+          console.log('Available tab content elements:');
+          allTabContents.forEach(el => console.log('  -', el.id));
+        }
 
         // Update title
         const titles = {
@@ -2334,7 +2782,7 @@
           files: "檔案管理",
           pages: "下載頁面",
           leads: "潛在客戶",
-          "file-creator": "檔案製作",
+          analytics: "數據分析",
         };
         document.getElementById("pageTitle").textContent = titles[tabName];
 
@@ -2352,12 +2800,20 @@
           case "leads":
             loadLeads();
             break;
+          case "analytics":
+            loadAnalytics();
+            break;
         }
       }
 
       // Navigation event listeners
       document.querySelectorAll(".nav-item").forEach((item) => {
         item.addEventListener("click", (e) => {
+          // 如果是外部連結，不處理 tab 切換
+          if (item.classList.contains('external-link')) {
+            return; // 讓瀏覽器處理外部連結
+          }
+          
           e.preventDefault();
           const tab = item.getAttribute("data-tab");
           switchTab(tab);
@@ -2699,6 +3155,94 @@
         } finally {
           loading.classList.add("hidden");
         }
+      }
+
+      // Analytics Management
+      async function loadAnalytics() {
+        const loading = document.getElementById("analyticsLoading");
+        const content = document.getElementById("analyticsContent");
+
+        loading.classList.remove("hidden");
+        content.classList.add("hidden");
+
+        try {
+          const response = await fetch("/api/analytics", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const analytics = data.data;
+            
+            // Update overview statistics
+            document.getElementById("totalViews").textContent = analytics.overview.totalViews || 0;
+            document.getElementById("todayViews").textContent = analytics.overview.todayViews || 0;
+            
+            // Calculate conversion rate
+            const conversionRate = analytics.overview.totalViews > 0
+              ? ((analytics.overview.totalDownloads / analytics.overview.totalViews) * 100).toFixed(2)
+              : 0;
+            document.getElementById("conversionRate").textContent = conversionRate + "%";
+            
+            // Update top pages list
+            const topPagesList = document.getElementById("topPagesList");
+            if (analytics.topPages && analytics.topPages.length > 0) {
+              topPagesList.innerHTML = analytics.topPages.map(page => `
+                <div style="padding: 0.75rem 0; border-bottom: 1px solid #e5e7eb;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <div style="font-weight: 600; margin-bottom: 0.25rem;">${page.title}</div>
+                      <div style="font-size: 0.875rem; color: #6b7280;">
+                        瀏覽: ${page.views} | 下載: ${page.downloads}
+                      </div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 0.875rem; color: #6b7280;">轉換率</div>
+                      <div style="font-weight: 600; color: #059669;">
+                        ${page.views > 0 ? ((page.downloads / page.views) * 100).toFixed(1) : 0}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join("");
+            } else {
+              topPagesList.innerHTML = '<p class="text-gray-500 text-center py-4">暫無資料</p>';
+            }
+            
+            // Update recent activity
+            const recentActivity = document.getElementById("recentActivity");
+            if (analytics.recentActivity && analytics.recentActivity.length > 0) {
+              recentActivity.innerHTML = analytics.recentActivity.map(activity => `
+                <div style="padding: 0.5rem 0; border-bottom: 1px solid #f3f4f6;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="font-size: 0.875rem;">
+                      <span style="color: #6b7280;">${formatDate(activity.createdAt)}</span>
+                      <span style="margin: 0 0.5rem;">-</span>
+                      <span>${activity.type === 'view' ? '瀏覽' : '下載'}</span>
+                      <span style="font-weight: 500;">${activity.page?.title || '未知頁面'}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join("");
+            } else {
+              recentActivity.innerHTML = '<p class="text-gray-500 text-center py-4">暫無最近活動</p>';
+            }
+            
+            content.classList.remove("hidden");
+          }
+        } catch (error) {
+          console.error("Failed to load analytics:", error);
+        } finally {
+          loading.classList.add("hidden");
+        }
+      }
+
+      // Export analytics report
+      function exportAnalytics() {
+        // TODO: Implement analytics export functionality
+        showNotification('匯出功能開發中', 'info');
       }
 
       // Utility functions
@@ -3256,7 +3800,7 @@
 
       // 添加模態框外部點擊關閉功能
       function setupModalClickToClose() {
-        const modals = document.querySelectorAll('.modal');
+        const modals = document.querySelectorAll('.modal, .file-preview-modal');
         
         modals.forEach(modal => {
           modal.addEventListener('click', function(e) {
@@ -3270,7 +3814,7 @@
         // 添加 ESC 鍵關閉模態框功能
         document.addEventListener('keydown', function(e) {
           if (e.key === 'Escape') {
-            const openModal = document.querySelector('.modal.show');
+            const openModal = document.querySelector('.modal.show, .file-preview-modal.show');
             if (openModal) {
               openModal.classList.remove('show');
             }
@@ -3341,18 +3885,322 @@
         showNotification('開始下載檔案...', 'info');
       }
 
-      // 編輯檔案功能
-      function editFile(fileId) {
+      // PDF預覽相關變數
+      let currentPdfDoc = null;
+      let currentPage = 1;
+      let totalPages = 0;
+      let currentScale = 1.5;
+      let pdfCanvas = null;
+      let pdfContext = null;
+
+      // 檔案預覽功能
+      async function previewFile(fileId) {
+        console.log('previewFile called with fileId:', fileId);
+        
         // 找到檔案資料
         const file = currentFiles.find(f => f.id === parseInt(fileId));
         if (!file) {
+          console.error('File not found:', fileId);
           showNotification('檔案不存在', 'error');
           return;
         }
 
-        // 可以在這裡實現檔案編輯功能，目前暫時顯示檔案資訊
-        const message = `檔案名稱：${file.name}\n原始名稱：${file.originalName}\n大小：${formatFileSize(file.sizeBytes)}\n下載次數：${file.downloads}`;
-        alert(message);
+        console.log('Found file:', file);
+
+        // 顯示預覽模態框
+        const modal = document.getElementById('filePreviewModal');
+        const title = document.getElementById('filePreviewTitle');
+        const body = document.getElementById('filePreviewBody');
+        
+        if (!modal || !title || !body) {
+          console.error('Preview modal elements not found');
+          showNotification('預覽功能初始化失敗', 'error');
+          return;
+        }
+        
+        title.textContent = file.originalName || file.name;
+        body.innerHTML = '<div class="file-preview-loading"><div class="spinner"></div><span>載入預覽中...</span></div>';
+        modal.classList.add('show');
+        
+        try {
+          // 取得檔案副檔名
+          const fileName = file.originalName || file.name;
+          const extension = fileName.split('.').pop()?.toLowerCase() || '';
+          
+          console.log('File extension:', extension);
+          
+          // 圖片檔案預覽
+          const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
+          if (imageExtensions.includes(extension)) {
+            // 使用檔案的儲存路徑來顯示圖片
+            let imagePath;
+            if (file.storageKey) {
+              imagePath = `/uploads/${file.storageKey}`;
+            } else if (file.filename) {
+              imagePath = `/uploads/${file.filename}`;
+            } else {
+              throw new Error('無法找到圖片檔案路徑');
+            }
+            
+            console.log('Loading image from:', imagePath);
+            body.innerHTML = `<img src="${imagePath}" class="file-preview-image" alt="${fileName}" onload="console.log('Image loaded successfully')" onerror="console.error('Image load failed'); this.onerror=null; this.parentNode.innerHTML='<div class=\\'file-preview-error\\'>圖片載入失敗<br><small>路徑: ${imagePath}</small></div>'">`;
+          }
+          // PDF檔案預覽
+          else if (extension === 'pdf') {
+            console.log('Loading PDF preview');
+            // 使用PDF.js預覽PDF檔案
+            await renderPDFPreview(file, body);
+          }
+          // 文字檔案預覽
+          else {
+            const textExtensions = ['txt', 'md', 'csv', 'json', 'html', 'xml', 'js', 'css', 'log', 'ini', 'conf'];
+            if (textExtensions.includes(extension)) {
+              console.log('Loading text file content');
+              // 使用檔案瀏覽器API來取得文字內容
+              const response = await fetch(`/api/file-viewer/content/${file.id}`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                }
+              });
+              
+              if (response.ok) {
+                const content = await response.text();
+                body.innerHTML = `<pre class="file-preview-text">${escapeHtml(content)}</pre>`;
+              } else {
+                const errorText = await response.text();
+                console.error('Failed to load file content:', response.status, errorText);
+                throw new Error(`無法載入檔案內容 (${response.status})`);
+              }
+            } else {
+              console.log('Unsupported file type, showing download option');
+              // 不支援預覽的檔案類型
+              const fileIcon = getFileTypeIcon(fileName);
+              body.innerHTML = `
+                <div class="file-preview-info">
+                  <div style="font-size: 3rem; margin-bottom: 1rem;">${fileIcon.icon}</div>
+                  <h3 style="margin-bottom: 0.5rem; color: #374151;">無法預覽此檔案類型</h3>
+                  <p style="margin-bottom: 0.5rem;">檔案名稱: ${fileName}</p>
+                  <p style="margin-bottom: 0.5rem;">檔案大小: ${formatFileSize(file.sizeBytes)}</p>
+                  <p style="margin-bottom: 1.5rem;">下載次數: ${file.downloads}</p>
+                  <a href="/download/${file.downloadSlug}" target="_blank" class="file-preview-download-btn">下載檔案</a>
+                </div>
+              `;
+            }
+          }
+        } catch (error) {
+          console.error('Preview error:', error);
+          body.innerHTML = `
+            <div class="file-preview-error">
+              <h3>預覽失敗</h3>
+              <p>錯誤訊息: ${error.message}</p>
+              <p>檔案ID: ${fileId}</p>
+              <p>檔案名稱: ${file.originalName || file.name}</p>
+              <a href="/download/${file.downloadSlug}" target="_blank" class="file-preview-download-btn">下載檔案</a>
+            </div>
+          `;
+        }
+      }
+
+      // PDF預覽功能
+      async function renderPDFPreview(file, container) {
+        try {
+          if (typeof pdfjsLib === "undefined") {
+            throw new Error("PDF.js 未正確載入");
+          }
+
+          // 建立PDF檢視器HTML結構
+          container.innerHTML = `
+            <div class="pdf-viewer-container">
+              <div class="pdf-controls">
+                <div class="pdf-nav-controls">
+                  <button id="prevPage" onclick="changePdfPage(-1)">
+                    ◀ 上一頁
+                  </button>
+                  <span>
+                    頁面 <span id="currentPageNum">1</span> / <span id="totalPagesNum">1</span>
+                  </span>
+                  <button id="nextPage" onclick="changePdfPage(1)">
+                    下一頁 ▶
+                  </button>
+                </div>
+                <div class="pdf-zoom-controls">
+                  <button onclick="changePdfScale(-0.2)">縮小</button>
+                  <span id="currentScale">150%</span>
+                  <button onclick="changePdfScale(0.2)">放大</button>
+                  <button onclick="fitPdfToWidth()">適合寬度</button>
+                </div>
+              </div>
+              <div class="pdf-canvas-container">
+                <canvas id="pdfCanvas"></canvas>
+              </div>
+            </div>
+          `;
+
+          // 取得PDF檔案URL
+          let pdfUrl;
+          if (file.storageKey) {
+            pdfUrl = `/uploads/${file.storageKey}`;
+          } else if (file.filename) {
+            pdfUrl = `/uploads/${file.filename}`;
+          } else {
+            // 使用API端點獲取PDF檔案
+            pdfUrl = `/api/file-viewer/stream/${file.id}`;
+          }
+
+          console.log("Loading PDF from:", pdfUrl);
+
+          // 載入PDF文件
+          const loadingTask = pdfjsLib.getDocument({
+            url: pdfUrl,
+            httpHeaders: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          currentPdfDoc = await loadingTask.promise;
+          totalPages = currentPdfDoc.numPages;
+          currentPage = 1;
+
+          // 更新頁面資訊
+          document.getElementById("totalPagesNum").textContent = totalPages;
+          document.getElementById("currentPageNum").textContent = currentPage;
+
+          // 取得canvas元素
+          pdfCanvas = document.getElementById("pdfCanvas");
+          pdfContext = pdfCanvas.getContext("2d");
+
+          // 渲染第一頁
+          await renderPdfPage(currentPage);
+
+          // 設置鍵盤事件
+          setupPdfKeyboardEvents();
+        } catch (error) {
+          console.error("PDF載入失敗:", error);
+          container.innerHTML = `
+            <div class="pdf-error">
+              <h3>PDF載入失敗</h3>
+              <p>${error.message}</p>
+              <button onclick="closeFilePreview()" style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; margin-top: 1rem; cursor: pointer;">關閉</button>
+            </div>
+          `;
+        }
+      }
+
+      // 渲染PDF頁面
+      async function renderPdfPage(pageNumber) {
+        if (!currentPdfDoc || pageNumber < 1 || pageNumber > totalPages) {
+          return;
+        }
+
+        try {
+          const page = await currentPdfDoc.getPage(pageNumber);
+          const viewport = page.getViewport({ scale: currentScale });
+
+          pdfCanvas.height = viewport.height;
+          pdfCanvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: pdfContext,
+            viewport: viewport,
+          };
+
+          await page.render(renderContext).promise;
+
+          // 更新控制介面
+          document.getElementById("currentPageNum").textContent = pageNumber;
+          document.getElementById("prevPage").disabled = pageNumber <= 1;
+          document.getElementById("nextPage").disabled = pageNumber >= totalPages;
+        } catch (error) {
+          console.error("PDF頁面渲染失敗:", error);
+        }
+      }
+
+      // 切換PDF頁面
+      function changePdfPage(delta) {
+        const newPage = currentPage + delta;
+        if (newPage >= 1 && newPage <= totalPages) {
+          currentPage = newPage;
+          renderPdfPage(currentPage);
+        }
+      }
+
+      // 調整PDF縮放
+      function changePdfScale(delta) {
+        const newScale = currentScale + delta;
+        if (newScale >= 0.5 && newScale <= 3.0) {
+          currentScale = newScale;
+          document.getElementById("currentScale").textContent =
+            Math.round(currentScale * 100) + "%";
+          renderPdfPage(currentPage);
+        }
+      }
+
+      // 適合寬度
+      function fitPdfToWidth() {
+        if (!currentPdfDoc || !pdfCanvas) return;
+
+        currentPdfDoc.getPage(currentPage).then((page) => {
+          const containerWidth = pdfCanvas.parentElement.clientWidth - 32; // 減去padding
+          const viewport = page.getViewport({ scale: 1 });
+          currentScale = containerWidth / viewport.width;
+          document.getElementById("currentScale").textContent =
+            Math.round(currentScale * 100) + "%";
+          renderPdfPage(currentPage);
+        });
+      }
+
+      // 設置PDF鍵盤快捷鍵
+      function setupPdfKeyboardEvents() {
+        document.addEventListener("keydown", function (e) {
+          const modal = document.getElementById("filePreviewModal");
+          if (!modal.classList.contains("show") || !currentPdfDoc) {
+            return;
+          }
+
+          switch (e.key) {
+            case "ArrowLeft":
+              changePdfPage(-1);
+              e.preventDefault();
+              break;
+            case "ArrowRight":
+              changePdfPage(1);
+              e.preventDefault();
+              break;
+            case "+":
+            case "=":
+              changePdfScale(0.2);
+              e.preventDefault();
+              break;
+            case "-":
+              changePdfScale(-0.2);
+              e.preventDefault();
+              break;
+          }
+        });
+      }
+      
+      // 關閉預覽模態框
+      function closeFilePreview() {
+        // 清理PDF資源
+        if (currentPdfDoc) {
+          currentPdfDoc.destroy();
+          currentPdfDoc = null;
+        }
+        currentPage = 1;
+        totalPages = 0;
+        currentScale = 1.5;
+        pdfCanvas = null;
+        pdfContext = null;
+        
+        const modal = document.getElementById('filePreviewModal');
+        modal.classList.remove('show');
+      }
+      
+      // HTML轉義函數
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
       }
 
       // 通知系統
@@ -3412,7 +4260,112 @@
           }, 300);
         }, 3000);
       }
+
+      // 編輯檔案功能
+      let editingFileId = null;
+
+      async function editFile(fileId) {
+        // 找到檔案資料
+        const file = currentFiles.find(f => f.id === parseInt(fileId));
+        if (!file) {
+          showNotification('檔案不存在', 'error');
+          return;
+        }
+
+        // 填入表單資料
+        document.getElementById('editFileName').value = file.originalName || file.name;
+        document.getElementById('editFileDescription').value = file.description || '';
+        document.getElementById('editFileContent').value = file.content || '';
+        document.getElementById('editFileStatus').value = file.isActive.toString();
+
+        // 儲存編輯中的檔案ID
+        editingFileId = fileId;
+
+        // 顯示編輯模態框
+        document.getElementById('editFileModal').classList.add('show');
+      }
+
+      function hideEditFileModal() {
+        document.getElementById('editFileModal').classList.remove('show');
+        editingFileId = null;
+      }
+
+      // 編輯檔案表單提交處理
+      document.addEventListener('DOMContentLoaded', function() {
+        const editFileForm = document.getElementById('editFileForm');
+        if (editFileForm) {
+          editFileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!editingFileId) {
+              showNotification('無效的檔案ID', 'error');
+              return;
+            }
+
+            const formData = new FormData(e.target);
+            const updateData = {
+              originalName: formData.get('originalName'),
+              description: formData.get('description'),
+              content: formData.get('content'),
+              isActive: formData.get('isActive') === 'true'
+            };
+
+            try {
+              const response = await fetch(`/api/files/${editingFileId}`, {
+                method: 'PUT',
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateData)
+              });
+
+              if (response.ok) {
+                hideEditFileModal();
+                await loadFiles(); // 重新載入檔案列表
+                showNotification('檔案更新成功', 'success');
+              } else {
+                const errorData = await response.json();
+                showNotification(`更新失敗：${errorData.message || '請稍後重試'}`, 'error');
+              }
+            } catch (error) {
+              console.error('Update file error:', error);
+              showNotification('更新失敗：網路錯誤', 'error');
+            }
+          });
+        }
+      });
+      
+      // 快速操作卡片功能
+      function handleUploadClick() {
+        // 切換到檔案頁面並開啟上傳
+        switchTab('files');
+        setTimeout(() => {
+          document.getElementById('fileInput').click();
+        }, 300);
+      }
+      
+      function handleNewPageClick() {
+        // 切換到頁面管理並開啟新增頁面模態框
+        switchTab('pages');
+        setTimeout(() => {
+          showCreatePageModal();
+        }, 300);
+      }
     </script>
+
+    <!-- 檔案預覽模態框 -->
+    <div id="filePreviewModal" class="file-preview-modal">
+      <div class="file-preview-content">
+        <div class="file-preview-header">
+          <h3 id="filePreviewTitle" class="file-preview-title">檔案預覽</h3>
+          <button class="file-preview-close" onclick="closeFilePreview()">&times;</button>
+        </div>
+        <div id="filePreviewBody" class="file-preview-body">
+          <!-- 預覽內容會動態載入 -->
+        </div>
+      </div>
+    </div>
 
     <!-- 確認刪除對話框 -->
     <div id="deleteConfirmDialog" class="confirm-dialog">
@@ -3425,5 +4378,66 @@
         </div>
       </div>
     </div>
+
+    <!-- Edit File Modal -->
+    <div id="editFileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">編輯檔案資訊</h3>
+          <button class="modal-close" onclick="hideEditFileModal()">&times;</button>
+        </div>
+        <form id="editFileForm">
+          <div class="form-group">
+            <label class="form-label">檔案名稱</label>
+            <input
+              type="text"
+              class="form-input"
+              id="editFileName"
+              name="originalName"
+              required
+              placeholder="輸入檔案名稱"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">檔案描述</label>
+            <textarea
+              class="form-input form-textarea"
+              id="editFileDescription"
+              name="description"
+              placeholder="輸入檔案描述"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">內容簡介</label>
+            <textarea
+              class="form-input form-textarea"
+              id="editFileContent"
+              name="content"
+              placeholder="輸入詳細的內容簡介，將顯示在下載頁面上"
+              rows="6"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">檔案狀態</label>
+            <select class="form-input" id="editFileStatus" name="isActive">
+              <option value="true">啟用</option>
+              <option value="false">停用</option>
+            </select>
+          </div>
+          <div class="flex gap-2 justify-between">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="hideEditFileModal()"
+            >
+              取消
+            </button>
+            <button type="submit" class="btn btn-primary">更新檔案</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </body>
 </html>

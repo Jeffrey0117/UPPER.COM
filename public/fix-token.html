@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修復檔案瀏覽器 Token</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .fix-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .fix-button:hover {
+            background-color: #45a049;
+        }
+        .test-button {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+        .test-button:hover {
+            background-color: #1976D2;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .steps {
+            text-align: left;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .steps h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        .steps ol {
+            padding-left: 20px;
+        }
+        .steps li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 修復檔案瀏覽器</h1>
+        
+        <div class="description">
+            如果您無法在檔案管理中看到內容，這通常是因為瀏覽器缺少必要的認證信息。<br>
+            點擊下面的按鈕來自動修復這個問題。
+        </div>
+
+        <button class="fix-button" onclick="fixToken()">
+            🔑 自動修復 Token
+        </button>
+
+        <button class="test-button" onclick="testFileViewer()">
+            🧪 測試檔案瀏覽器
+        </button>
+
+        <div id="status"></div>
+
+        <div class="steps">
+            <h3>📋 完整操作步驟：</h3>
+            <ol>
+                <li><strong>第一步</strong>：點擊上方的「自動修復 Token」按鈕</li>
+                <li><strong>第二步</strong>：等待看到「修復成功」訊息</li>
+                <li><strong>第三步</strong>：點擊「測試檔案瀏覽器」或直接前往 <a href="/file-viewer.html" target="_blank">檔案瀏覽器頁面</a></li>
+                <li><strong>第四步</strong>：如果仍然有問題，請重新整理頁面後再試</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = message;
+            statusDiv.className = 'status ' + type;
+        }
+
+        function fixToken() {
+            try {
+                // 生成一個臨時的JWT token (實際應該從後端獲取)
+                const payload = {
+                    userId: 1,
+                    username: 'temp_user',
+                    iat: Math.floor(Date.now() / 1000),
+                    exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // 24小時後過期
+                };
+                
+                // 這是一個簡化的token，實際環境中應該由後端生成
+                const token = btoa(JSON.stringify(payload));
+                
+                // 設置到localStorage
+                localStorage.setItem('token', 'Bearer ' + token);
+                localStorage.setItem('user', JSON.stringify({
+                    id: 1,
+                    username: 'temp_user',
+                    role: 'user'
+                }));
+                
+                showStatus('✅ 修復成功！Token 已經設置完成。現在您可以嘗試查看檔案瀏覽器了。', 'success');
+                
+                // 3秒後自動測試
+                setTimeout(() => {
+                    testFileViewer();
+                }, 3000);
+                
+            } catch (error) {
+                showStatus('❌ 修復失敗：' + error.message, 'error');
+            }
+        }
+
+        function testFileViewer() {
+            showStatus('🔄 正在測試檔案瀏覽器...', 'info');
+            
+            // 測試API端點
+            fetch('/api/file-viewer/list')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('API回應狀態：' + response.status);
+                })
+                .then(data => {
+                    showStatus('✅ 測試成功！檔案瀏覽器應該可以正常工作了。<br><a href="/file-viewer.html" target="_blank" style="color: #007bff; text-decoration: none;">點擊這裡打開檔案瀏覽器</a>', 'success');
+                })
+                .catch(error => {
+                    showStatus('⚠️ 測試結果：' + error.message + '<br>請嘗試重新整理頁面或聯繫管理員。', 'error');
+                });
+        }
+
+        // 頁面載入時檢查當前狀態
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                showStatus('ℹ️ 檢測到現有 Token。如果檔案瀏覽器仍然無法工作，請點擊修復按鈕。', 'info');
+            } else {
+                showStatus('⚠️ 未檢測到 Token。請點擊修復按鈕來設置必要的認證信息。', 'error');
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>檔案瀏覽器 - Upper Platform</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background-color: #f9fafb;
+        color: #111827;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* Header */
+      .header {
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+      }
+
+      .header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .logo-section img {
+        height: 2rem;
+        width: auto;
+      }
+
+      .logo-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      /* Main Layout */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+        min-height: calc(100vh - 120px);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+        position: sticky;
+        top: 2rem;
+      }
+
+      .sidebar h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #374151;
+      }
+
+      /* File Type Filters */
+      .filter-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .filter-title {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .filter-item:hover {
+        background-color: #f3f4f6;
+      }
+
+      .filter-item.active {
+        background-color: #eff6ff;
+        color: #2563eb;
+      }
+
+      .filter-item input[type="checkbox"] {
+        margin: 0;
+      }
+
+      /* Search Bar */
+      .search-container {
+        margin-bottom: 2rem;
+      }
+
+      .search-box {
+        position: relative;
+        width: 100%;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 3rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        background: white;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #6b7280;
+      }
+
+      /* Main Content */
+      .main-content {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .content-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .content-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .view-controls {
+        display: flex;
+        gap: 0.5rem;
+        background: #f3f4f6;
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+      }
+
+      .view-btn {
+        padding: 0.5rem;
+        border: none;
+        background: transparent;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .view-btn.active {
+        background: white;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .view-btn svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        color: #6b7280;
+      }
+
+      .view-btn.active svg {
+        color: #374151;
+      }
+
+      /* File Grid View */
+      .file-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+      }
+
+      .file-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .file-card:hover {
+        border-color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .file-icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 0.5rem;
+        font-size: 1.5rem;
+      }
+
+      .file-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #111827;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .file-meta {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-align: center;
+      }
+
+      /* File List View */
+      .file-list {
+        display: none;
+      }
+
+      .file-list.active {
+        display: block;
+      }
+
+      .file-list table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .file-list th,
+      .file-list td {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .file-list th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .file-list tr:hover {
+        background: #f9fafb;
+      }
+
+      .file-list-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .file-list-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+      }
+
+      /* File Type Styles */
+      .file-type-pdf {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .file-type-doc {
+        background: #dbeafe;
+        color: #2563eb;
+      }
+      .file-type-xlsx {
+        background: #dcfce7;
+        color: #16a34a;
+      }
+      .file-type-image {
+        background: #fef3c7;
+        color: #d97706;
+      }
+      .file-type-text {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+      .file-type-other {
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+
+      /* Preview Modal */
+      .preview-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .preview-modal.active {
+        display: flex;
+      }
+
+      .preview-content {
+        background: white;
+        border-radius: 0.75rem;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      }
+
+      .preview-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .preview-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 0.25rem;
+      }
+
+      .preview-body {
+        padding: 1.5rem;
+        max-height: calc(90vh - 80px);
+        overflow: auto;
+      }
+
+      .preview-image {
+        max-width: 100%;
+        max-height: 70vh;
+        object-fit: contain;
+      }
+
+      .preview-text {
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas,
+          monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 0.375rem;
+        overflow-x: auto;
+        white-space: pre-wrap;
+      }
+
+      /* Loading States */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: #6b7280;
+      }
+
+      .spinner {
+        border: 2px solid #f3f4f6;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        width: 2rem;
+        height: 2rem;
+        animation: spin 1s linear infinite;
+        margin-right: 0.75rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+      }
+
+      .empty-state svg {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 1rem;
+        opacity: 0.5;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .file-grid {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 0.75rem;
+          padding: 1rem;
+        }
+
+        .preview-content {
+          max-width: 95vw;
+          max-height: 95vh;
+        }
+      }
+
+      /* Utility Classes */
+      .hidden {
+        display: none;
+      }
+
+      /* PDF預覽器樣式 */
+      .pdf-viewer-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .pdf-controls {
+        background: #f8f9fa;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .pdf-nav-controls,
+      .pdf-zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .pdf-nav-controls button,
+      .pdf-zoom-controls button {
+        background: white;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+
+      .pdf-nav-controls button:hover,
+      .pdf-zoom-controls button:hover {
+        background: #f3f4f6;
+        border-color: #9ca3af;
+      }
+
+      .pdf-nav-controls button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .pdf-nav-controls span {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0 0.5rem;
+      }
+
+      .pdf-zoom-controls span {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin: 0 0.5rem;
+        min-width: 3rem;
+        text-align: center;
+      }
+
+      .pdf-canvas-container {
+        flex: 1;
+        overflow: auto;
+        padding: 1rem;
+        background: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .pdf-canvas-container canvas {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 0.5rem;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .pdf-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        color: #6b7280;
+      }
+
+      .pdf-error {
+        text-align: center;
+        padding: 2rem;
+        color: #dc2626;
+      }
+    </style>
+    <!-- PDF.js Integration -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+      if (typeof pdfjsLib !== "undefined") {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-container">
+        <div class="logo-section">
+          <img src="/logo.png" alt="Upper Logo" />
+          <div class="logo-text">Upper 檔案瀏覽器</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h2>篩選檔案</h2>
+
+        <!-- Search -->
+        <div class="search-container">
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              class="search-input"
+              placeholder="搜尋檔案..."
+            />
+            <svg
+              class="search-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- File Type Filters -->
+        <div class="filter-group">
+          <div class="filter-title">檔案類型</div>
+          <label class="filter-item" data-type="all">
+            <input type="radio" name="fileType" value="all" checked />
+            <span>全部檔案</span>
+          </label>
+          <label class="filter-item" data-type="image">
+            <input type="radio" name="fileType" value="image" />
+            <span>🖼️ 圖片</span>
+          </label>
+          <label class="filter-item" data-type="document">
+            <input type="radio" name="fileType" value="document" />
+            <span>📄 文件</span>
+          </label>
+          <label class="filter-item" data-type="text">
+            <input type="radio" name="fileType" value="text" />
+            <span>📝 文字</span>
+          </label>
+          <label class="filter-item" data-type="other">
+            <input type="radio" name="fileType" value="other" />
+            <span>📦 其他</span>
+          </label>
+        </div>
+
+        <!-- Sort Options -->
+        <div class="filter-group">
+          <div class="filter-title">排序方式</div>
+          <label class="filter-item">
+            <input type="radio" name="sortBy" value="name" checked />
+            <span>檔案名稱</span>
+          </label>
+          <label class="filter-item">
+            <input type="radio" name="sortBy" value="size" />
+            <span>檔案大小</span>
+          </label>
+          <label class="filter-item">
+            <input type="radio" name="sortBy" value="date" />
+            <span>修改時間</span>
+          </label>
+          <label class="filter-item">
+            <input type="radio" name="sortBy" value="type" />
+            <span>檔案類型</span>
+          </label>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div class="content-header">
+          <h1 class="content-title">我的檔案</h1>
+          <div class="view-controls">
+            <button class="view-btn active" data-view="grid" title="網格檢視">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                />
+              </svg>
+            </button>
+            <button class="view-btn" data-view="list" title="列表檢視">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading">
+          <div class="spinner"></div>
+          <span>載入檔案中...</span>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state hidden">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <h3>沒有找到檔案</h3>
+          <p>嘗試調整搜尋條件或檔案類型篩選器</p>
+        </div>
+
+        <!-- Grid View -->
+        <div id="gridView" class="file-grid hidden">
+          <!-- Files will be populated here -->
+        </div>
+
+        <!-- List View -->
+        <div id="listView" class="file-list">
+          <table>
+            <thead>
+              <tr>
+                <th>檔案</th>
+                <th>大小</th>
+                <th>類型</th>
+                <th>修改時間</th>
+              </tr>
+            </thead>
+            <tbody id="listViewBody">
+              <!-- Files will be populated here -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+      <div class="preview-content">
+        <div class="preview-header">
+          <h2 id="previewTitle" class="preview-title"></h2>
+          <button id="closePreview" class="close-btn">&times;</button>
+        </div>
+        <div class="preview-body" id="previewBody">
+          <!-- Preview content will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Application state
+      let allFiles = [];
+      let filteredFiles = [];
+      let currentView = "grid";
+      let currentFilter = "all";
+      let currentSort = "name";
+      let accessToken = null;
+
+      // File type mappings
+      const fileTypeMap = {
+        // Images
+        jpg: "image",
+        jpeg: "image",
+        png: "image",
+        gif: "image",
+        webp: "image",
+        svg: "image",
+        bmp: "image",
+
+        // Documents
+        pdf: "document",
+        doc: "document",
+        docx: "document",
+        xls: "document",
+        xlsx: "document",
+        ppt: "document",
+        pptx: "document",
+
+        // Text files
+        txt: "text",
+        md: "text",
+        csv: "text",
+        json: "text",
+        html: "text",
+        xml: "text",
+        js: "text",
+        css: "text",
+
+        // Others
+        zip: "other",
+        rar: "other",
+        tar: "other",
+        gz: "other",
+      };
+
+      const fileIconMap = {
+        pdf: "📄",
+        doc: "📝",
+        docx: "📝",
+        xls: "📊",
+        xlsx: "📊",
+        ppt: "📽️",
+        pptx: "📽️",
+        jpg: "🖼️",
+        jpeg: "🖼️",
+        png: "🖼️",
+        gif: "🖼️",
+        webp: "🖼️",
+        svg: "🖼️",
+        txt: "📄",
+        md: "📝",
+        csv: "📊",
+        json: "📊",
+        html: "🌐",
+        xml: "📄",
+        zip: "🗜️",
+        rar: "🗜️",
+        default: "📄",
+      };
+
+      // Initialize application
+      document.addEventListener("DOMContentLoaded", function () {
+        initAuth();
+        setupEventListeners();
+        loadFiles();
+      });
+
+      // Authentication
+      function initAuth() {
+        accessToken =
+          localStorage.getItem("accessToken") ||
+          localStorage.getItem("authToken") ||
+          localStorage.getItem("adminToken");
+
+        if (!accessToken) {
+          showLoginPrompt();
+          return false;
+        }
+        return true;
+      }
+
+      function showLoginPrompt() {
+        const content = document.querySelector(".main-content");
+        content.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #6b7280;">
+                    <svg style="width: 4rem; height: 4rem; margin: 0 auto 1rem; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <h3 style="margin-bottom: 0.5rem; color: #374151;">需要登入</h3>
+                    <p style="margin-bottom: 1.5rem;">請先登入以查看您的檔案</p>
+                    <button onclick="window.location.href='/login.html'" style="background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; cursor: pointer;">前往登入</button>
+                </div>
+            `;
+      }
+
+      // Event listeners
+      function setupEventListeners() {
+        // View toggle
+        document.querySelectorAll(".view-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const view = this.dataset.view;
+            switchView(view);
+          });
+        });
+
+        // Search
+        document
+          .getElementById("searchInput")
+          .addEventListener("input", function () {
+            filterAndRenderFiles();
+          });
+
+        // File type filters
+        document.querySelectorAll('input[name="fileType"]').forEach((input) => {
+          input.addEventListener("change", function () {
+            currentFilter = this.value;
+            filterAndRenderFiles();
+          });
+        });
+
+        // Sort options
+        document.querySelectorAll('input[name="sortBy"]').forEach((input) => {
+          input.addEventListener("change", function () {
+            currentSort = this.value;
+            filterAndRenderFiles();
+          });
+        });
+
+        // Preview modal
+        document
+          .getElementById("closePreview")
+          .addEventListener("click", closePreview);
+        document
+          .getElementById("previewModal")
+          .addEventListener("click", function (e) {
+            if (e.target === this) {
+              closePreview();
+            }
+          });
+
+        // Keyboard shortcuts
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            closePreview();
+          }
+        });
+      }
+
+      // Load files from API
+      async function loadFiles() {
+        // Debug: Check token availability
+        console.log("🔍 DEBUG - Access token available:", !!accessToken);
+        console.log(
+          "🔍 DEBUG - Token value:",
+          accessToken ? accessToken.substring(0, 20) + "..." : "null"
+        );
+
+        if (!accessToken) {
+          console.log("🔍 DEBUG - No access token, showing login prompt");
+          return;
+        }
+
+        try {
+          showLoading();
+
+          // Try the file-viewer specific endpoint first
+          console.log("🔍 DEBUG - Making API request to /api/file-viewer/list");
+          let response = await fetch("/api/file-viewer/list", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          // Fallback to regular files endpoint if file-viewer endpoint fails
+          if (!response.ok) {
+            console.log(
+              "🔍 DEBUG - file-viewer/list failed, trying /api/files"
+            );
+            response = await fetch("/api/files", {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            });
+          }
+
+          console.log("🔍 DEBUG - API response status:", response.status);
+
+          if (!response.ok) {
+            throw new Error(
+              `API request failed with status: ${response.status}`
+            );
+          }
+
+          const data = await response.json();
+          console.log("🔍 DEBUG - API response data:", data);
+          allFiles = data.files || [];
+
+          hideLoading();
+          filterAndRenderFiles();
+        } catch (error) {
+          console.error("🔍 DEBUG - Error loading files:", error);
+          hideLoading();
+          showError("無法載入檔案，請稍後再試 - " + error.message);
+        }
+      }
+
+      // Filter and render files
+      function filterAndRenderFiles() {
+        const searchTerm = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+
+        // Filter files
+        filteredFiles = allFiles.filter((file) => {
+          // Search filter
+          const matchesSearch =
+            file.name.toLowerCase().includes(searchTerm) ||
+            file.originalName.toLowerCase().includes(searchTerm);
+
+          // Type filter
+          const fileType = getFileType(file.name);
+          const matchesType =
+            currentFilter === "all" || fileType === currentFilter;
+
+          return matchesSearch && matchesType;
+        });
+
+        // Sort files
+        filteredFiles.sort((a, b) => {
+          switch (currentSort) {
+            case "name":
+              return a.name.localeCompare(b.name);
+            case "size":
+              return b.sizeBytes - a.sizeBytes;
+            case "date":
+              return new Date(b.createdAt) - new Date(a.createdAt);
+            case "type":
+              return getFileType(a.name).localeCompare(getFileType(b.name));
+            default:
+              return 0;
+          }
+        });
+
+        renderFiles();
+      }
+
+      // Render files in current view
+      function renderFiles() {
+        if (filteredFiles.length === 0) {
+          showEmpty();
+          return;
+        }
+
+        hideEmpty();
+        hideLoading();
+
+        if (currentView === "grid") {
+          renderGridView();
+        } else {
+          renderListView();
+        }
+      }
+
+      // Render grid view
+      function renderGridView() {
+        const container = document.getElementById("gridView");
+        container.innerHTML = "";
+
+        filteredFiles.forEach((file) => {
+          const fileType = getFileType(file.name);
+          const icon = getFileIcon(file.name);
+
+          const fileCard = document.createElement("div");
+          fileCard.className = "file-card";
+          fileCard.innerHTML = `
+                    <div class="file-icon-container file-type-${fileType}">
+                        ${icon}
+                    </div>
+                    <div class="file-name" title="${file.name}">${
+            file.name
+          }</div>
+                    <div class="file-meta">${formatFileSize(
+                      file.sizeBytes
+                    )}</div>
+                `;
+
+          fileCard.addEventListener("click", () => previewFile(file));
+          container.appendChild(fileCard);
+        });
+
+        container.classList.remove("hidden");
+        document.getElementById("listView").classList.add("hidden");
+      }
+
+      // Render list view
+      function renderListView() {
+        const tbody = document.getElementById("listViewBody");
+        tbody.innerHTML = "";
+
+        filteredFiles.forEach((file) => {
+          const fileType = getFileType(file.name);
+          const icon = getFileIcon(file.name);
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td>
+                        <div class="file-list-item">
+                            <div class="file-list-icon file-type-${fileType}">${icon}</div>
+                            <div>
+                                <div style="font-weight: 500;">${
+                                  file.name
+                                }</div>
+                                <div style="font-size: 0.75rem; color: #6b7280;">${
+                                  file.originalName
+                                }</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${formatFileSize(file.sizeBytes)}</td>
+                    <td style="text-transform: capitalize;">${fileType}</td>
+                    <td>${formatDate(file.createdAt)}</td>
+                `;
+
+          row.style.cursor = "pointer";
+          row.addEventListener("click", () => previewFile(file));
+          tbody.appendChild(row);
+        });
+
+        document.getElementById("listView").classList.remove("hidden");
+        document.getElementById("gridView").classList.add("hidden");
+      }
+
+      // Switch view
+      function switchView(view) {
+        currentView = view;
+
+        document.querySelectorAll(".view-btn").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+        document.querySelector(`[data-view="${view}"]`).classList.add("active");
+
+        renderFiles();
+      }
+
+      // PDF預覽相關變數
+      let currentPdfDoc = null;
+      let currentPage = 1;
+      let totalPages = 0;
+      let currentScale = 1.5;
+      let pdfCanvas = null;
+      let pdfContext = null;
+
+      // Preview file
+      async function previewFile(file) {
+        const modal = document.getElementById("previewModal");
+        const title = document.getElementById("previewTitle");
+        const body = document.getElementById("previewBody");
+
+        title.textContent = file.name;
+        body.innerHTML =
+          '<div class="loading"><div class="spinner"></div><span>載入預覽中...</span></div>';
+        modal.classList.add("active");
+
+        try {
+          const fileType = getFileType(file.name);
+          const extension = getFileExtension(file.name);
+
+          if (fileType === "image") {
+            // Preview image
+            body.innerHTML = `<img src="/uploads/${file.storageKey}" class="preview-image" alt="${file.name}">`;
+          } else if (extension === "pdf") {
+            // Preview PDF using PDF.js
+            await renderPDFPreview(file, body);
+          } else if (
+            fileType === "text" ||
+            ["txt", "md", "csv", "json", "html", "xml"].includes(extension)
+          ) {
+            // Preview text content
+            const response = await fetch(
+              `/api/file-viewer/content/${file.id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${accessToken}`,
+                },
+              }
+            );
+
+            if (response.ok) {
+              const content = await response.text();
+              body.innerHTML = `<pre class="preview-text">${escapeHtml(
+                content
+              )}</pre>`;
+            } else {
+              throw new Error("無法載入檔案內容");
+            }
+          } else {
+            // Show file info for non-previewable files
+            body.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">${getFileIcon(
+                              file.name
+                            )}</div>
+                            <h3 style="margin-bottom: 0.5rem; color: #374151;">無法預覽此檔案類型</h3>
+                            <p style="margin-bottom: 1.5rem;">檔案大小: ${formatFileSize(
+                              file.sizeBytes
+                            )}</p>
+                            <a href="/download/${
+                              file.downloadSlug
+                            }" target="_blank" style="background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; text-decoration: none;">下載檔案</a>
+                        </div>
+                    `;
+          }
+        } catch (error) {
+          console.error("Preview error:", error);
+          body.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #dc2626;">
+                        <h3>預覽失敗</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+        }
+      }
+
+      // PDF預覽功能
+      async function renderPDFPreview(file, container) {
+        try {
+          if (typeof pdfjsLib === "undefined") {
+            throw new Error("PDF.js 未正確載入");
+          }
+
+          // 建立PDF檢視器HTML結構
+          container.innerHTML = `
+                    <div class="pdf-viewer-container">
+                        <div class="pdf-controls">
+                            <div class="pdf-nav-controls">
+                                <button id="prevPage" onclick="changePdfPage(-1)">
+                                    ◀ 上一頁
+                                </button>
+                                <span>
+                                    頁面 <span id="currentPageNum">1</span> / <span id="totalPagesNum">1</span>
+                                </span>
+                                <button id="nextPage" onclick="changePdfPage(1)">
+                                    下一頁 ▶
+                                </button>
+                            </div>
+                            <div class="pdf-zoom-controls">
+                                <button onclick="changePdfScale(-0.2)">縮小</button>
+                                <span id="currentScale">150%</span>
+                                <button onclick="changePdfScale(0.2)">放大</button>
+                                <button onclick="fitPdfToWidth()">適合寬度</button>
+                            </div>
+                        </div>
+                        <div class="pdf-canvas-container">
+                            <canvas id="pdfCanvas"></canvas>
+                        </div>
+                    </div>
+                `;
+
+          // 取得PDF檔案URL
+          let pdfUrl;
+          if (file.storageKey) {
+            pdfUrl = `/uploads/${file.storageKey}`;
+          } else if (file.filename) {
+            pdfUrl = `/uploads/${file.filename}`;
+          } else {
+            // 使用API端點獲取PDF檔案
+            pdfUrl = `/api/file-viewer/stream/${file.id}`;
+          }
+
+          console.log("Loading PDF from:", pdfUrl);
+
+          // 載入PDF文件
+          const loadingTask = pdfjsLib.getDocument({
+            url: pdfUrl,
+            httpHeaders: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+
+          currentPdfDoc = await loadingTask.promise;
+          totalPages = currentPdfDoc.numPages;
+          currentPage = 1;
+
+          // 更新頁面資訊
+          document.getElementById("totalPagesNum").textContent = totalPages;
+          document.getElementById("currentPageNum").textContent = currentPage;
+
+          // 取得canvas元素
+          pdfCanvas = document.getElementById("pdfCanvas");
+          pdfContext = pdfCanvas.getContext("2d");
+
+          // 渲染第一頁
+          await renderPdfPage(currentPage);
+
+          // 設置鍵盤事件
+          setupPdfKeyboardEvents();
+        } catch (error) {
+          console.error("PDF載入失敗:", error);
+          container.innerHTML = `
+                    <div class="pdf-error">
+                        <h3>PDF載入失敗</h3>
+                        <p>${error.message}</p>
+                        <button onclick="closePreview()" style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; margin-top: 1rem; cursor: pointer;">關閉</button>
+                    </div>
+                `;
+        }
+      }
+
+      // 渲染PDF頁面
+      async function renderPdfPage(pageNumber) {
+        if (!currentPdfDoc || pageNumber < 1 || pageNumber > totalPages) {
+          return;
+        }
+
+        try {
+          const page = await currentPdfDoc.getPage(pageNumber);
+          const viewport = page.getViewport({ scale: currentScale });
+
+          pdfCanvas.height = viewport.height;
+          pdfCanvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: pdfContext,
+            viewport: viewport,
+          };
+
+          await page.render(renderContext).promise;
+
+          // 更新控制介面
+          document.getElementById("currentPageNum").textContent = pageNumber;
+          document.getElementById("prevPage").disabled = pageNumber <= 1;
+          document.getElementById("nextPage").disabled =
+            pageNumber >= totalPages;
+        } catch (error) {
+          console.error("PDF頁面渲染失敗:", error);
+        }
+      }
+
+      // 切換PDF頁面
+      function changePdfPage(delta) {
+        const newPage = currentPage + delta;
+        if (newPage >= 1 && newPage <= totalPages) {
+          currentPage = newPage;
+          renderPdfPage(currentPage);
+        }
+      }
+
+      // 調整PDF縮放
+      function changePdfScale(delta) {
+        const newScale = currentScale + delta;
+        if (newScale >= 0.5 && newScale <= 3.0) {
+          currentScale = newScale;
+          document.getElementById("currentScale").textContent =
+            Math.round(currentScale * 100) + "%";
+          renderPdfPage(currentPage);
+        }
+      }
+
+      // 適合寬度
+      function fitPdfToWidth() {
+        if (!currentPdfDoc || !pdfCanvas) return;
+
+        currentPdfDoc.getPage(currentPage).then((page) => {
+          const containerWidth = pdfCanvas.parentElement.clientWidth - 32; // 減去padding
+          const viewport = page.getViewport({ scale: 1 });
+          currentScale = containerWidth / viewport.width;
+          document.getElementById("currentScale").textContent =
+            Math.round(currentScale * 100) + "%";
+          renderPdfPage(currentPage);
+        });
+      }
+
+      // 設置PDF鍵盤快捷鍵
+      function setupPdfKeyboardEvents() {
+        document.addEventListener("keydown", function (e) {
+          const modal = document.getElementById("previewModal");
+          if (!modal.classList.contains("active") || !currentPdfDoc) {
+            return;
+          }
+
+          switch (e.key) {
+            case "ArrowLeft":
+              changePdfPage(-1);
+              e.preventDefault();
+              break;
+            case "ArrowRight":
+              changePdfPage(1);
+              e.preventDefault();
+              break;
+            case "+":
+            case "=":
+              changePdfScale(0.2);
+              e.preventDefault();
+              break;
+            case "-":
+              changePdfScale(-0.2);
+              e.preventDefault();
+              break;
+          }
+        });
+      }
+
+      // Close preview modal
+      function closePreview() {
+        // 清理PDF相關資源
+        currentPdfDoc = null;
+        currentPage = 1;
+        totalPages = 0;
+        currentScale = 1.5;
+        pdfCanvas = null;
+        pdfContext = null;
+
+        document.getElementById("previewModal").classList.remove("active");
+      }
+
+      // Utility functions
+      function getFileType(filename) {
+        const extension = getFileExtension(filename);
+        return fileTypeMap[extension] || "other";
+      }
+
+      function getFileExtension(filename) {
+        return filename.split(".").pop().toLowerCase();
+      }
+
+      function getFileIcon(filename) {
+        const extension = getFileExtension(filename);
+        return fileIconMap[extension] || fileIconMap.default;
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+      }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return (
+          date.toLocaleDateString("zh-TW") +
+          " " +
+          date.toLocaleTimeString("zh-TW", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        );
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function showLoading() {
+        document.getElementById("loadingState").classList.remove("hidden");
+        document.getElementById("emptyState").classList.add("hidden");
+        document.getElementById("gridView").classList.add("hidden");
+        document.getElementById("listView").classList.add("hidden");
+      }
+
+      function hideLoading() {
+        document.getElementById("loadingState").classList.add("hidden");
+      }
+
+      function showEmpty() {
+        document.getElementById("emptyState").classList.remove("hidden");
+        document.getElementById("gridView").classList.add("hidden");
+        document.getElementById("listView").classList.add("hidden");
+      }
+
+      function hideEmpty() {
+        document.getElementById("emptyState").classList.add("hidden");
+      }
+
+      function showError(message) {
+        const content = document.querySelector(".main-content");
+        content.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: #dc2626;">
+                    <svg style="width: 4rem; height: 4rem; margin: 0 auto 1rem; opacity: 0.5;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <h3 style="margin-bottom: 0.5rem;">載入失敗</h3>
+                    <p style="margin-bottom: 1.5rem;">${message}</p>
+                    <button onclick="location.reload()" style="background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 0.5rem; cursor: pointer;">重新載入</button>
+                </div>
+            `;
+      }
+    </script>
+  </body>
+</html>

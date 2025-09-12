@@ -17,7 +17,9 @@ const __dirname = path.dirname(__filename);
 // Import routes
 import authRoutes from "./routes/auth.js";
 import fileRoutes from "./routes/files.js";
+import fileViewerRoutes from "./routes/fileViewer.js";
 import pageRoutes from "./routes/pages.js";
+import pageFileRoutes from "./routes/pageFiles.js";
 import analyticsRoutes from "./routes/analytics.js";
 import fileCreatorRoutes from "./routes/fileCreator.js";
 import { publicRouter as publicRoutes } from "./routes/public.js";
@@ -67,9 +69,14 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://cdnjs.cloudflare.com",
+        ],
         scriptSrcAttr: ["'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
         imgSrc: ["'self'", "data:", "https:"],
         connectSrc: ["'self'"],
         fontSrc: ["'self'"],
@@ -149,7 +156,9 @@ app.get("/health", async (req, res) => {
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/files", authenticateToken, fileRoutes);
+app.use("/api/file-viewer", fileViewerRoutes); // File viewer routes (auth handled within route)
 app.use("/api/pages", authenticateToken, pageRoutes);
+app.use("/api/page-files", authenticateToken, pageFileRoutes); // Multi-file association routes
 app.use("/api/analytics", authenticateToken, analyticsRoutes);
 app.use("/api/file-creator", authenticateToken, fileCreatorRoutes);
 app.use("/api/profile", authenticateToken, profileRoutes);
