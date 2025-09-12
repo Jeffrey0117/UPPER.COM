@@ -144,5 +144,20 @@ model PageFile {
   @@map("page_files")
 }
 
+// 客戶管理模型
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  company   String?
+  notes     String?
+  status    String   @default("potential") // potential, active, inactive
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("customers")
+}
+
 // 移除 enum，改用字串常數
 // Role: "ADMIN", "OWNER", "MEMBER"

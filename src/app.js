@@ -25,6 +25,7 @@ import fileCreatorRoutes from "./routes/fileCreator.js";
 import { publicRouter as publicRoutes } from "./routes/public.js";
 import imageRoutes from "./routes/images.js";
 import profileRoutes from "./routes/profile.js";
+import customerRoutes from "./routes/customers.js";
 
 // Import middleware
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -162,6 +163,7 @@ app.use("/api/page-files", authenticateToken, pageFileRoutes); // Multi-file ass
 app.use("/api/analytics", authenticateToken, analyticsRoutes);
 app.use("/api/file-creator", authenticateToken, fileCreatorRoutes);
 app.use("/api/profile", authenticateToken, profileRoutes);
+app.use("/api/customers", authenticateToken, customerRoutes); // Customer management routes
 app.use("/api", imageRoutes); // Image upload routes
 
 // Serve static files FIRST (before public routes)

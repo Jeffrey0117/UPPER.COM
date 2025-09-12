@@ -1474,7 +1474,7 @@
               </svg>
               下載頁面
             </a>
-            <a href="#leads" class="nav-item" data-tab="leads">
+            <a href="#customers" class="nav-item" data-tab="customers">
               <svg
                 class="nav-icon"
                 fill="none"
@@ -1488,7 +1488,7 @@
                   d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
-              潛在客戶
+              客戶管理
             </a>
             <a href="#analytics" class="nav-item" data-tab="analytics">
               <svg
@@ -1837,33 +1837,101 @@
             </div>
           </div>
 
-          <!-- Leads Tab -->
-          <div id="leads-tab" class="tab-content">
+          <!-- Customers Tab -->
+          <div id="customers-tab" class="tab-content">
+            <!-- 搜尋和篩選區域 -->
+            <div class="card">
+              <div class="card-content">
+                <div class="flex gap-2 items-center">
+                  <div style="flex: 1;">
+                    <input
+                      type="text"
+                      id="customerSearchInput"
+                      class="form-input"
+                      placeholder="搜尋客戶姓名、電子郵件、公司..."
+                      onkeyup="searchCustomers()"
+                    />
+                  </div>
+                  <select id="customerStatusFilter" class="form-input" style="width: 150px;" onchange="filterCustomers()">
+                    <option value="all">所有狀態</option>
+                    <option value="active">活躍</option>
+                    <option value="potential">潛在</option>
+                    <option value="inactive">非活躍</option>
+                  </select>
+                  <button class="btn btn-primary" onclick="showAddCustomerModal()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
+                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                    </svg>
+                    新增客戶
+                  </button>
+                  <button class="btn btn-secondary" onclick="exportCustomers()">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
+                      <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/>
+                    </svg>
+                    匯出
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 客戶列表 -->
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">潛在客戶名單</h3>
-                <button class="btn btn-secondary" onclick="exportLeads()">
-                  匯出 CSV
-                </button>
+                <h3 class="card-title">客戶列表</h3>
+                <div class="flex gap-2 items-center">
+                  <span id="customerCount" style="color: #6b7280; font-size: 0.875rem;">共 0 筆記錄</span>
+                </div>
               </div>
               <div class="card-content">
-                <div id="leadsLoading" class="loading">
+                <div id="customersLoading" class="loading">
                   <div class="spinner"></div>
                 </div>
-                <div id="leadsList" class="hidden">
+                <div id="customersList" class="hidden">
                   <table class="table">
                     <thead>
                       <tr>
-                        <th>電子郵件</th>
-                        <th>姓名</th>
-                        <th>來源頁面</th>
-                        <th>下載檔案</th>
-                        <th>提交時間</th>
-                        <th>操作</th>
+                        <th style="width: 5%;">
+                          <input type="checkbox" id="selectAllCustomers" onchange="toggleSelectAll()">
+                        </th>
+                        <th style="width: 20%;">姓名</th>
+                        <th style="width: 25%;">電子郵件</th>
+                        <th style="width: 15%;">電話</th>
+                        <th style="width: 15%;">公司</th>
+                        <th style="width: 10%;">狀態</th>
+                        <th style="width: 10%;">操作</th>
                       </tr>
                     </thead>
-                    <tbody id="leadsTableBody"></tbody>
+                    <tbody id="customersTableBody"></tbody>
                   </table>
+                  
+                  <!-- 分頁控制 -->
+                  <div class="flex justify-between items-center" style="margin-top: 1rem;">
+                    <div>
+                      每頁顯示
+                      <select id="customersPerPage" class="form-input" style="width: 80px; display: inline-block; margin: 0 0.5rem;" onchange="changePageSize()">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                      </select>
+                      筆
+                    </div>
+                    <div id="customersPagination" class="flex gap-2">
+                      <!-- 分頁按鈕會動態載入 -->
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 空狀態 -->
+                <div id="customersEmpty" class="empty-state" style="display: none;">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                  </svg>
+                  <h3>還沒有客戶資料</h3>
+                  <p>點擊「新增客戶」按鈕來添加您的第一個客戶</p>
+                  <button class="btn btn-primary" onclick="showAddCustomerModal()" style="margin-top: 1rem;">
+                    新增客戶
+                  </button>
                 </div>
               </div>
             </div>
@@ -2781,7 +2849,7 @@
           dashboard: "儀表板",
           files: "檔案管理",
           pages: "下載頁面",
-          leads: "潛在客戶",
+          customers: "客戶管理",
           analytics: "數據分析",
         };
         document.getElementById("pageTitle").textContent = titles[tabName];
@@ -2797,8 +2865,8 @@
           case "pages":
             loadPages();
             break;
-          case "leads":
-            loadLeads();
+          case "customers":
+            loadCustomers();
             break;
           case "analytics":
             loadAnalytics();
@@ -2819,6 +2887,361 @@
           switchTab(tab);
         });
       });
+
+      // Customer Management Functions
+      let customers = [];
+      let filteredCustomers = [];
+      let selectedCustomers = new Set();
+      let currentCustomerPage = 1;
+      let customersPerPage = 10;
+
+      // 載入客戶列表
+      async function loadCustomers() {
+        const loading = document.getElementById("customersLoading");
+        const list = document.getElementById("customersList");
+        const empty = document.getElementById("customersEmpty");
+
+        loading.style.display = "block";
+        list.classList.add("hidden");
+        empty.style.display = "none";
+
+        try {
+          // 使用真實 API 呼叫
+          const response = await fetch("/api/customers", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          customers = data.customers || [];
+
+          filteredCustomers = [...customers];
+          
+          if (customers.length === 0) {
+            empty.style.display = "block";
+          } else {
+            displayCustomers();
+            list.classList.remove("hidden");
+          }
+        } catch (error) {
+          console.error("Failed to load customers:", error);
+          empty.style.display = "block";
+          empty.innerHTML = `
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3>載入失敗</h3>
+            <p>無法載入客戶列表</p>
+            <button class="btn btn-primary" onclick="loadCustomers()">重新載入</button>
+          `;
+        } finally {
+          loading.style.display = "none";
+        }
+      }
+
+      // 顯示客戶列表
+      function displayCustomers() {
+        const tbody = document.getElementById("customersTableBody");
+        const startIndex = (currentCustomerPage - 1) * customersPerPage;
+        const endIndex = startIndex + customersPerPage;
+        const pageCustomers = filteredCustomers.slice(startIndex, endIndex);
+
+        tbody.innerHTML = pageCustomers
+          .map(
+            (customer) => `
+          <tr>
+            <td>
+              <input type="checkbox"
+                data-customer-id="${customer.id}"
+                ${selectedCustomers.has(customer.id) ? 'checked' : ''}
+                onchange="toggleCustomerSelection(${customer.id})">
+            </td>
+            <td>${customer.name}</td>
+            <td>${customer.email}</td>
+            <td>${customer.phone || '未提供'}</td>
+            <td>${customer.company || '未提供'}</td>
+            <td>
+              <span class="badge ${getStatusBadgeClass(customer.status)}">
+                ${getStatusText(customer.status)}
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-secondary btn-sm" onclick="editCustomer(${customer.id})">編輯</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCustomer(${customer.id})">刪除</button>
+            </td>
+          </tr>
+        `
+          )
+          .join("");
+
+        // 更新客戶數量
+        document.getElementById("customerCount").textContent = `共 ${filteredCustomers.length} 筆記錄`;
+        
+        // 更新分頁控制
+        updateCustomerPagination();
+      }
+
+      // 更新分頁控制
+      function updateCustomerPagination() {
+        const pagination = document.getElementById("customersPagination");
+        const totalPages = Math.ceil(filteredCustomers.length / customersPerPage);
+        
+        let paginationHTML = '';
+        
+        // 上一頁
+        if (currentCustomerPage > 1) {
+          paginationHTML += `<button class="btn btn-secondary btn-sm" onclick="changeCustomerPage(${currentCustomerPage - 1})">上一頁</button>`;
+        }
+        
+        // 頁碼
+        for (let i = 1; i <= totalPages; i++) {
+          if (i === currentCustomerPage) {
+            paginationHTML += `<button class="btn btn-primary btn-sm">${i}</button>`;
+          } else {
+            paginationHTML += `<button class="btn btn-secondary btn-sm" onclick="changeCustomerPage(${i})">${i}</button>`;
+          }
+        }
+        
+        // 下一頁
+        if (currentCustomerPage < totalPages) {
+          paginationHTML += `<button class="btn btn-secondary btn-sm" onclick="changeCustomerPage(${currentCustomerPage + 1})">下一頁</button>`;
+        }
+        
+        pagination.innerHTML = paginationHTML;
+      }
+
+      // 切換客戶頁面
+      function changeCustomerPage(page) {
+        currentCustomerPage = page;
+        displayCustomers();
+      }
+
+      // 改變每頁顯示數量
+      function changePageSize() {
+        const select = document.getElementById("customersPerPage");
+        customersPerPage = parseInt(select.value);
+        currentCustomerPage = 1;
+        displayCustomers();
+      }
+
+      // 搜尋客戶
+      function searchCustomers() {
+        const searchInput = document.getElementById("customerSearchInput");
+        const searchTerm = searchInput.value.toLowerCase();
+        
+        filteredCustomers = customers.filter(customer => {
+          return customer.name.toLowerCase().includes(searchTerm) ||
+                 customer.email.toLowerCase().includes(searchTerm) ||
+                 (customer.company && customer.company.toLowerCase().includes(searchTerm)) ||
+                 (customer.phone && customer.phone.includes(searchTerm));
+        });
+        
+        currentCustomerPage = 1;
+        displayCustomers();
+      }
+
+      // 篩選客戶狀態
+      function filterCustomers() {
+        const statusFilter = document.getElementById("customerStatusFilter");
+        const status = statusFilter.value;
+        
+        if (status === "all") {
+          filteredCustomers = [...customers];
+        } else {
+          filteredCustomers = customers.filter(customer => customer.status === status);
+        }
+        
+        // 重新應用搜尋條件
+        const searchInput = document.getElementById("customerSearchInput");
+        if (searchInput.value) {
+          searchCustomers();
+        } else {
+          currentCustomerPage = 1;
+          displayCustomers();
+        }
+      }
+
+      // 切換客戶選擇
+      function toggleCustomerSelection(customerId) {
+        if (selectedCustomers.has(customerId)) {
+          selectedCustomers.delete(customerId);
+        } else {
+          selectedCustomers.add(customerId);
+        }
+        
+        // 更新全選框狀態
+        const selectAll = document.getElementById("selectAllCustomers");
+        const pageCustomers = filteredCustomers.slice(
+          (currentCustomerPage - 1) * customersPerPage,
+          currentCustomerPage * customersPerPage
+        );
+        
+        const allPageSelected = pageCustomers.every(c => selectedCustomers.has(c.id));
+        selectAll.checked = allPageSelected;
+      }
+
+      // 切換全選
+      function toggleSelectAll() {
+        const selectAll = document.getElementById("selectAllCustomers");
+        const pageCustomers = filteredCustomers.slice(
+          (currentCustomerPage - 1) * customersPerPage,
+          currentCustomerPage * customersPerPage
+        );
+        
+        if (selectAll.checked) {
+          pageCustomers.forEach(customer => selectedCustomers.add(customer.id));
+        } else {
+          pageCustomers.forEach(customer => selectedCustomers.delete(customer.id));
+        }
+        
+        displayCustomers();
+      }
+
+      // 取得狀態Badge類別
+      function getStatusBadgeClass(status) {
+        switch (status) {
+          case 'active':
+            return 'badge-success';
+          case 'potential':
+            return 'badge-warning';
+          case 'inactive':
+            return 'badge-danger';
+          default:
+            return 'badge-secondary';
+        }
+      }
+
+      // 取得狀態文字
+      function getStatusText(status) {
+        switch (status) {
+          case 'active':
+            return '活躍';
+          case 'potential':
+            return '潛在';
+          case 'inactive':
+            return '非活躍';
+          default:
+            return '未知';
+        }
+      }
+
+      // 顯示新增客戶模態框
+      function showAddCustomerModal() {
+        document.getElementById("addCustomerModal").classList.add("show");
+      }
+
+      // 隱藏新增客戶模態框
+      function hideAddCustomerModal() {
+        document.getElementById("addCustomerModal").classList.remove("show");
+        document.getElementById("addCustomerForm").reset();
+      }
+
+      // 編輯客戶
+      function editCustomer(customerId) {
+        const customer = customers.find(c => c.id === customerId);
+        if (!customer) {
+          showNotification('客戶不存在', 'error');
+          return;
+        }
+        
+        // 填充編輯表單
+        document.getElementById("editCustomerName").value = customer.name;
+        document.getElementById("editCustomerEmail").value = customer.email;
+        document.getElementById("editCustomerPhone").value = customer.phone || '';
+        document.getElementById("editCustomerCompany").value = customer.company || '';
+        document.getElementById("editCustomerStatus").value = customer.status;
+        
+        // 儲存編輯中的客戶ID
+        window.editingCustomerId = customerId;
+        
+        // 顯示編輯模態框
+        document.getElementById("editCustomerModal").classList.add("show");
+      }
+
+      // 隱藏編輯客戶模態框
+      function hideEditCustomerModal() {
+        document.getElementById("editCustomerModal").classList.remove("show");
+        document.getElementById("editCustomerForm").reset();
+        window.editingCustomerId = null;
+      }
+
+      // 刪除客戶
+      async function deleteCustomer(customerId) {
+        if (!confirm('確定要刪除這個客戶嗎？此操作無法復原。')) {
+          return;
+        }
+        
+        try {
+          // 使用真實 API 呼叫
+          const response = await fetch(`/api/customers/${customerId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          // 從本地列表中移除
+          customers = customers.filter(c => c.id !== customerId);
+          filteredCustomers = filteredCustomers.filter(c => c.id !== customerId);
+          selectedCustomers.delete(customerId);
+          
+          displayCustomers();
+          showNotification('客戶已刪除', 'success');
+        } catch (error) {
+          console.error('Delete customer error:', error);
+          showNotification('刪除失敗', 'error');
+        }
+      }
+
+      // 匯出客戶資料
+      async function exportCustomers() {
+        try {
+          // 使用 API 呼叫
+          const response = await fetch('/api/customers/export/csv', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          // 取得 CSV 內容
+          const csvContent = await response.text();
+          
+          // 加入BOM以支援Excel正確顯示中文
+          const BOM = '\uFEFF';
+          const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          
+          // 建立下載連結
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `客戶資料_${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // 釋放資源
+          URL.revokeObjectURL(url);
+          
+          showNotification('客戶資料匯出成功', 'success');
+        } catch (error) {
+          console.error('Export customers error:', error);
+          showNotification('匯出失敗', 'error');
+        }
+      }
 
       // Dashboard
       async function loadDashboard() {
@@ -4439,5 +4862,238 @@
       </div>
     </div>
 
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">新增客戶</h3>
+          <button class="modal-close" onclick="hideAddCustomerModal()">&times;</button>
+        </div>
+        <form id="addCustomerForm">
+          <div class="form-group">
+            <label class="form-label">姓名 *</label>
+            <input
+              type="text"
+              class="form-input"
+              name="name"
+              required
+              placeholder="輸入客戶姓名"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">電子郵件 *</label>
+            <input
+              type="email"
+              class="form-input"
+              name="email"
+              required
+              placeholder="輸入電子郵件"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">電話</label>
+            <input
+              type="tel"
+              class="form-input"
+              name="phone"
+              placeholder="輸入電話號碼"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">公司</label>
+            <input
+              type="text"
+              class="form-input"
+              name="company"
+              placeholder="輸入公司名稱"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">狀態</label>
+            <select class="form-input" name="status">
+              <option value="potential">潛在</option>
+              <option value="active">活躍</option>
+              <option value="inactive">非活躍</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">備註</label>
+            <textarea
+              class="form-input form-textarea"
+              name="notes"
+              placeholder="輸入備註"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="flex gap-2 justify-between">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="hideAddCustomerModal()"
+            >
+              取消
+            </button>
+            <button type="submit" class="btn btn-primary">新增客戶</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Customer Modal -->
+    <div id="editCustomerModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">編輯客戶</h3>
+          <button class="modal-close" onclick="hideEditCustomerModal()">&times;</button>
+        </div>
+        <form id="editCustomerForm">
+          <div class="form-group">
+            <label class="form-label">姓名 *</label>
+            <input
+              type="text"
+              class="form-input"
+              id="editCustomerName"
+              name="name"
+              required
+              placeholder="輸入客戶姓名"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">電子郵件 *</label>
+            <input
+              type="email"
+              class="form-input"
+              id="editCustomerEmail"
+              name="email"
+              required
+              placeholder="輸入電子郵件"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">電話</label>
+            <input
+              type="tel"
+              class="form-input"
+              id="editCustomerPhone"
+              name="phone"
+              placeholder="輸入電話號碼"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">公司</label>
+            <input
+              type="text"
+              class="form-input"
+              id="editCustomerCompany"
+              name="company"
+              placeholder="輸入公司名稱"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">狀態</label>
+            <select class="form-input" id="editCustomerStatus" name="status">
+              <option value="potential">潛在</option>
+              <option value="active">活躍</option>
+              <option value="inactive">非活躍</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">備註</label>
+            <textarea
+              class="form-input form-textarea"
+              id="editCustomerNotes"
+              name="notes"
+              placeholder="輸入備註"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="flex gap-2 justify-between">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="hideEditCustomerModal()"
+            >
+              取消
+            </button>
+            <button type="submit" class="btn btn-primary">更新客戶</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // 新增客戶表單提交處理
+      document.getElementById("addCustomerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        const customerData = Object.fromEntries(formData);
+        
+        try {
+          // 使用真實 API 呼叫
+          const response = await fetch("/api/customers", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(customerData),
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          const result = await response.json();
+          
+          // 重新載入客戶列表
+          await loadCustomers();
+          
+          hideAddCustomerModal();
+          showNotification('客戶新增成功', 'success');
+        } catch (error) {
+          console.error('Add customer error:', error);
+          showNotification('新增失敗', 'error');
+        }
+      });
+
+      // 編輯客戶表單提交處理
+      document.getElementById("editCustomerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        if (!window.editingCustomerId) {
+          showNotification('無效的客戶ID', 'error');
+          return;
+        }
+        
+        const formData = new FormData(e.target);
+        const updateData = Object.fromEntries(formData);
+        
+        try {
+          // 使用真實 API 呼叫
+          const response = await fetch(`/api/customers/${window.editingCustomerId}`, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateData),
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          // 重新載入客戶列表
+          await loadCustomers();
+          
+          hideEditCustomerModal();
+          showNotification('客戶更新成功', 'success');
+        } catch (error) {
+          console.error('Update customer error:', error);
+          showNotification('更新失敗', 'error');
+        }
+      });
+    </script>
   </body>
 </html>

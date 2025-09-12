@@ -1085,6 +1085,35 @@ router.post(
         include: { file: true },
       });
 
+      // 整合客戶管理系統 - 使用 upsert 來處理重複的 Email
+      const existingCustomer = await prisma.customer.findUnique({
+        where: { email: email },
+      });
+
+      const pageInfo = `[${new Date().toLocaleDateString(
+        "zh-TW"
+      )}] 從下載頁面 "${page?.title || slug}" 提交資料`;
+
+      const customer = await prisma.customer.upsert({
+        where: { email: email },
+        update: {
+          name: name, // 更新名稱（可能訪客使用不同的名稱）
+          notes: existingCustomer?.notes
+            ? `${existingCustomer.notes}\n${pageInfo}`
+            : pageInfo,
+        },
+        create: {
+          name,
+          email,
+          status: "potential", // 設定為潛在客戶
+          notes: pageInfo,
+        },
+      });
+
+      logger.info(
+        `Customer ${customer.id} (${email}) submitted from download page: ${slug}`
+      );
+
       if (page && page.isActive && page.file) {
         // Real page with file - normal flow
         // Use upsert to handle duplicate email for same page
