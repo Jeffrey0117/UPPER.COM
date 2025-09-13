@@ -2060,13 +2060,13 @@
             </select>
           </div>
           
-          <!-- 圖片管理區域 -->
+          <!-- 頁面圖片管理區域 -->
           <div class="form-group">
             <label class="form-label">頁面圖片</label>
             <div id="createPageImages" class="image-manager">
               <!-- 圖片列表會動態載入 -->
             </div>
-            
+
             <!-- 添加圖片選項 -->
             <div class="image-add-options">
               <div class="flex gap-2 mb-4">
@@ -2077,18 +2077,52 @@
                   🔗 圖片網址
                 </button>
               </div>
-              
+
               <!-- 上傳圖片區域 -->
               <div id="createImageUploadArea" class="image-upload-area hidden">
                 <input type="file" id="createImageUpload" multiple accept="image/*" class="form-input">
                 <div class="upload-preview" id="createUploadPreview"></div>
               </div>
-              
+
               <!-- 圖片網址區域 -->
               <div id="createImageUrlArea" class="image-url-area hidden">
                 <div class="flex gap-2">
                   <input type="url" id="createImageUrl" placeholder="輸入圖片網址" class="form-input">
                   <button type="button" class="btn btn-primary btn-sm" onclick="addImageUrl('create')">添加</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 介紹圖片管理區域 -->
+          <div class="form-group">
+            <label class="form-label">介紹圖片</label>
+            <div id="createIntroImages" class="image-manager">
+              <!-- 介紹圖片列表會動態載入 -->
+            </div>
+
+            <!-- 添加介紹圖片選項 -->
+            <div class="image-add-options">
+              <div class="flex gap-2 mb-4">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="showIntroImageUploadOption('create')">
+                  📁 上傳介紹圖片
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="showIntroImageUrlOption('create')">
+                  🔗 介紹圖片網址
+                </button>
+              </div>
+
+              <!-- 上傳介紹圖片區域 -->
+              <div id="createIntroImageUploadArea" class="image-upload-area hidden">
+                <input type="file" id="createIntroImageUpload" multiple accept="image/*" class="form-input">
+                <div class="upload-preview" id="createIntroUploadPreview"></div>
+              </div>
+
+              <!-- 介紹圖片網址區域 -->
+              <div id="createIntroImageUrlArea" class="image-url-area hidden">
+                <div class="flex gap-2">
+                  <input type="url" id="createIntroImageUrl" placeholder="輸入介紹圖片網址" class="form-input">
+                  <button type="button" class="btn btn-primary btn-sm" onclick="addIntroImageUrl('create')">添加</button>
                 </div>
               </div>
             </div>
@@ -2162,13 +2196,13 @@
             </select>
           </div>
           
-          <!-- 圖片管理區域 -->
+          <!-- 頁面圖片管理區域 -->
           <div class="form-group">
             <label class="form-label">頁面圖片</label>
             <div id="editPageImages" class="image-manager">
               <!-- 圖片列表會動態載入 -->
             </div>
-            
+
             <!-- 添加圖片選項 -->
             <div class="image-add-options">
               <div class="flex gap-2 mb-4">
@@ -2179,18 +2213,52 @@
                   🔗 圖片網址
                 </button>
               </div>
-              
+
               <!-- 上傳圖片區域 -->
               <div id="editImageUploadArea" class="image-upload-area hidden">
                 <input type="file" id="editImageUpload" multiple accept="image/*" class="form-input">
                 <div class="upload-preview" id="editUploadPreview"></div>
               </div>
-              
+
               <!-- 圖片網址區域 -->
               <div id="editImageUrlArea" class="image-url-area hidden">
                 <div class="flex gap-2">
                   <input type="url" id="editImageUrl" placeholder="輸入圖片網址" class="form-input">
                   <button type="button" class="btn btn-primary btn-sm" onclick="addImageUrl('edit')">添加</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 介紹圖片管理區域 -->
+          <div class="form-group">
+            <label class="form-label">介紹圖片</label>
+            <div id="editIntroImages" class="image-manager">
+              <!-- 介紹圖片列表會動態載入 -->
+            </div>
+
+            <!-- 添加介紹圖片選項 -->
+            <div class="image-add-options">
+              <div class="flex gap-2 mb-4">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="showIntroImageUploadOption('edit')">
+                  📁 上傳介紹圖片
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="showIntroImageUrlOption('edit')">
+                  🔗 介紹圖片網址
+                </button>
+              </div>
+
+              <!-- 上傳介紹圖片區域 -->
+              <div id="editIntroImageUploadArea" class="image-upload-area hidden">
+                <input type="file" id="editIntroImageUpload" multiple accept="image/*" class="form-input">
+                <div class="upload-preview" id="editIntroUploadPreview"></div>
+              </div>
+
+              <!-- 介紹圖片網址區域 -->
+              <div id="editIntroImageUrlArea" class="image-url-area hidden">
+                <div class="flex gap-2">
+                  <input type="url" id="editIntroImageUrl" placeholder="輸入介紹圖片網址" class="form-input">
+                  <button type="button" class="btn btn-primary btn-sm" onclick="addIntroImageUrl('edit')">添加</button>
                 </div>
               </div>
             </div>
@@ -3545,8 +3613,10 @@
 
         // Reset image manager
         pageImages.create = [];
+        introImages.create = [];
         updateImageManager('create');
-        
+        updateIntroImageManager('create');
+
         document.getElementById("createPageModal").classList.add("show");
       }
 
@@ -3830,9 +3900,25 @@
             console.error('解析圖片資料失敗:', error);
           }
         }
-        
+
+        // 載入介紹圖片資料
+        introImages.edit = [];
+        if (page.introImages) {
+          try {
+            const introImagesData = JSON.parse(page.introImages);
+            introImages.edit = introImagesData.map(url => ({
+              type: 'url',
+              url: url,
+              preview: url
+            }));
+          } catch (error) {
+            console.error('解析介紹圖片資料失敗:', error);
+          }
+        }
+
         // 更新圖片管理器顯示
         updateImageManager('edit');
+        updateIntroImageManager('edit');
 
         // Store page ID for update
         editingPageId = pageId;
@@ -3919,12 +4005,17 @@
           const pageData = Object.fromEntries(formData);
 
           try {
-            // 先上傳圖片
+            // 先上傳頁面圖片
             const imageUrls = await uploadImages('create');
             if (imageUrls === null) return; // 圖片上傳失敗
-            
+
+            // 先上傳介紹圖片
+            const introImageUrls = await uploadIntroImages('create');
+            if (introImageUrls === null) return; // 介紹圖片上傳失敗
+
             // 添加圖片到頁面數據
             pageData.images = JSON.stringify(imageUrls);
+            pageData.introImages = JSON.stringify(introImageUrls);
 
             const response = await fetch("/api/pages", {
               method: "POST",
@@ -3940,7 +4031,9 @@
               loadPages();
               // 清空圖片列表
               pageImages.create = [];
+              introImages.create = [];
               updateImageManager('create');
+              updateIntroImageManager('create');
               alert("頁面建立成功！");
             } else {
               alert("建立失敗，請稍後重試");
@@ -3971,12 +4064,17 @@
           }
 
           try {
-            // 先上傳圖片
+            // 先上傳頁面圖片
             const imageUrls = await uploadImages('edit');
             if (imageUrls === null) return; // 圖片上傳失敗
-            
+
+            // 先上傳介紹圖片
+            const introImageUrls = await uploadIntroImages('edit');
+            if (introImageUrls === null) return; // 介紹圖片上傳失敗
+
             // 添加圖片到更新數據
             updateData.images = JSON.stringify(imageUrls);
+            updateData.introImages = JSON.stringify(introImageUrls);
 
             const response = await fetch(`/api/pages/${editingPageId}`, {
               method: "PUT",
@@ -4003,6 +4101,7 @@
 
       // Image Management Functions
       let pageImages = { create: [], edit: [] };
+      let introImages = { create: [], edit: [] };
 
       function showImageUploadOption(mode) {
         const uploadArea = document.getElementById(`${mode}ImageUploadArea`);
@@ -4210,12 +4309,12 @@
 
       async function uploadImages(mode) {
         const uploadedUrls = [];
-        
+
         for (const image of pageImages[mode]) {
           if (image.type === 'upload') {
             const formData = new FormData();
             formData.append('images', image.file);
-            
+
             try {
               const response = await fetch('/api/upload-images', {
                 method: 'POST',
@@ -4224,7 +4323,7 @@
                 },
                 body: formData
               });
-              
+
               if (response.ok) {
                 const result = await response.json();
                 uploadedUrls.push(result.urls[0]);
@@ -4240,7 +4339,218 @@
             uploadedUrls.push(image.url);
           }
         }
-        
+
+        return uploadedUrls;
+      }
+
+      // 介紹圖片管理函數
+      function showIntroImageUploadOption(mode) {
+        const uploadArea = document.getElementById(`${mode}IntroImageUploadArea`);
+        uploadArea.classList.remove('hidden');
+        document.getElementById(`${mode}IntroImageUrlArea`).classList.add('hidden');
+
+        const uploadInput = document.getElementById(`${mode}IntroImageUpload`);
+        uploadInput.onchange = function(e) {
+          handleIntroImageUpload(e, mode);
+        };
+
+        setupIntroDragAndDrop(uploadArea, mode);
+      }
+
+      function showIntroImageUrlOption(mode) {
+        document.getElementById(`${mode}IntroImageUrlArea`).classList.remove('hidden');
+        document.getElementById(`${mode}IntroImageUploadArea`).classList.add('hidden');
+      }
+
+      function setupIntroDragAndDrop(uploadArea, mode) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, preventDefaults, false);
+          document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, () => highlight(uploadArea), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, () => unhighlight(uploadArea), false);
+        });
+
+        uploadArea.addEventListener('drop', (e) => handleIntroDrop(e, mode), false);
+      }
+
+      function handleIntroDrop(e, mode) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+
+        if (imageFiles.length === 0) {
+          alert('請只上傳圖片檔案 (JPG, PNG, GIF 等)');
+          return;
+        }
+
+        processIntroDraggedImages(imageFiles, mode);
+      }
+
+      function processIntroDraggedImages(files, mode) {
+        const preview = document.getElementById(`${mode}IntroUploadPreview`);
+
+        files.forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            preview.appendChild(img);
+
+            introImages[mode].push({
+              type: 'upload',
+              file: file,
+              preview: e.target.result
+            });
+
+            updateIntroImageManager(mode);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function handleIntroImageUpload(event, mode) {
+        const files = event.target.files;
+        const preview = document.getElementById(`${mode}IntroUploadPreview`);
+        preview.innerHTML = '';
+
+        for (let file of files) {
+          if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const img = document.createElement('img');
+              img.src = e.target.result;
+              preview.appendChild(img);
+
+              introImages[mode].push({
+                type: 'upload',
+                file: file,
+                preview: e.target.result
+              });
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+
+        updateIntroImageManager(mode);
+      }
+
+      function addIntroImageUrl(mode) {
+        const urlInput = document.getElementById(`${mode}IntroImageUrl`);
+        const url = urlInput.value.trim();
+
+        if (url) {
+          const img = new Image();
+          img.onload = function() {
+            introImages[mode].push({
+              type: 'url',
+              url: url,
+              preview: url
+            });
+            updateIntroImageManager(mode);
+            urlInput.value = '';
+          };
+          img.onerror = function() {
+            alert('無法載入圖片，請檢查網址是否正確');
+          };
+          img.src = url;
+        }
+      }
+
+      function updateIntroImageManager(mode) {
+        const container = document.getElementById(`${mode}IntroImages`);
+
+        if (introImages[mode].length === 0) {
+          container.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 1rem;">尚未添加介紹圖片</p>';
+          return;
+        }
+
+        const imageList = document.createElement('div');
+        imageList.className = 'image-list';
+
+        introImages[mode].forEach((image, index) => {
+          const imageItem = document.createElement('div');
+          imageItem.className = 'image-item';
+
+          imageItem.innerHTML = `
+            <img src="${image.preview}" alt="介紹圖片 ${index + 1}">
+            <div class="image-item-controls">
+              <button type="button" class="image-btn" onclick="moveIntroImage('${mode}', ${index}, -1)" title="向前移動">↑</button>
+              <button type="button" class="image-btn" onclick="moveIntroImage('${mode}', ${index}, 1)" title="向後移動">↓</button>
+              <button type="button" class="image-btn" onclick="removeIntroImage('${mode}', ${index})" title="刪除">×</button>
+            </div>
+          `;
+
+          imageList.appendChild(imageItem);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(imageList);
+
+        const info = document.createElement('p');
+        info.style.color = '#6b7280';
+        info.style.fontSize = '0.875rem';
+        info.style.marginTop = '0.5rem';
+        info.textContent = `已添加 ${introImages[mode].length} 張介紹圖片${introImages[mode].length > 1 ? '（將顯示為輪播圖）' : ''}`;
+        container.appendChild(info);
+      }
+
+      function moveIntroImage(mode, index, direction) {
+        const images = introImages[mode];
+        const newIndex = index + direction;
+
+        if (newIndex >= 0 && newIndex < images.length) {
+          [images[index], images[newIndex]] = [images[newIndex], images[index]];
+          updateIntroImageManager(mode);
+        }
+      }
+
+      function removeIntroImage(mode, index) {
+        if (confirm('確定要刪除這張介紹圖片嗎？')) {
+          introImages[mode].splice(index, 1);
+          updateIntroImageManager(mode);
+        }
+      }
+
+      async function uploadIntroImages(mode) {
+        const uploadedUrls = [];
+
+        for (const image of introImages[mode]) {
+          if (image.type === 'upload') {
+            const formData = new FormData();
+            formData.append('images', image.file);
+
+            try {
+              const response = await fetch('/api/upload-images', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: formData
+              });
+
+              if (response.ok) {
+                const result = await response.json();
+                uploadedUrls.push(result.urls[0]);
+              } else {
+                throw new Error('介紹圖片上傳失敗');
+              }
+            } catch (error) {
+              console.error('Intro image upload error:', error);
+              alert('介紹圖片上傳失敗：' + error.message);
+              return null;
+            }
+          } else {
+            uploadedUrls.push(image.url);
+          }
+        }
+
         return uploadedUrls;
       }
 

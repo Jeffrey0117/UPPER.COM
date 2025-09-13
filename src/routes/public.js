@@ -422,10 +422,10 @@ router.get(
     .nav-links a:hover { color: #3b82f6; }
     
     .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-    .card { 
-      background: rgba(248, 250, 252, 0.8); 
-      border-radius: 12px; 
-      padding: 30px; 
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 30px;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       border: 1px solid rgba(203, 213, 225, 0.6);
       backdrop-filter: blur(10px);
@@ -646,7 +646,7 @@ router.get(
     }
     
     .file-icon-doc, .file-icon-docx {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      background: #F2F2F2;
     }
     
     .file-icon-xls, .file-icon-xlsx {
@@ -702,13 +702,13 @@ router.get(
     
     .action-buttons-top {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
     
     .action-buttons-bottom {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: 1fr;
     }
     
     .action-btn {
@@ -734,7 +734,7 @@ router.get(
     }
     
     .btn-share {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      background: #3b82f6;
       box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
     
@@ -783,7 +783,7 @@ router.get(
         margin: 0 auto 20px auto;
       }
       
-      .action-buttons-bottom {
+      .action-buttons-top {
         grid-template-columns: 1fr;
         gap: 8px;
       }
@@ -805,85 +805,53 @@ router.get(
         </div>
       </div>
     </nav>
-    
-    <!-- 作者資訊Banner區域 (重新設計) -->
-    <div onclick="goToUserProfile()" style="
-      width: 100%;
-      height: 120px;
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      border-radius: 12px;
-      margin-bottom: 32px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 16px rgba(59, 130, 246, 0.2)'">
-      
-      <!-- 作者資訊橫條 -->
-      <div style="
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        padding: 0 32px;
-        z-index: 2;
-        pointer-events: none;
-      ">
-        <!-- 左側：頭像和基本資訊 -->
-        <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
-          <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-weight: bold; font-size: 24px; border: 3px solid rgba(255, 255, 255, 0.9);">
-            西
-          </div>
-          <div>
-            <h3 style="font-size: 20px; font-weight: bold; margin: 0 0 4px 0; color: white; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">西譯社</h3>
-            <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin-bottom: 2px;">@westtranslation</div>
-            <div style="color: rgba(255, 255, 255, 0.8); font-size: 13px;">
-              專業翻譯工作室・提供高品質中英翻譯服務
+
+    <!-- 介紹圖片展示區域 (移至上方) -->
+    ${(() => {
+      let introImages = [];
+      // 使用 pageToRender.introImages 欄位
+      if (pageToRender.introImages) {
+        try {
+          introImages = JSON.parse(pageToRender.introImages);
+        } catch (e) {
+          console.log("解析介紹圖片失敗:", e);
+        }
+      }
+
+      if (introImages.length > 0) {
+        return `
+            <!-- 介紹圖片展示區域 (無標題) -->
+            <div style=\"margin-bottom: 32px;\">
+              <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;\">
+                ${introImages
+                  .slice(0, 6) // 最多顯示6張介紹圖片
+                  .map(
+                    (img, index) => `
+                  <div style=\"
+                    border-radius: 8px;
+                    overflow: hidden;
+                    border: 1px solid rgba(203, 213, 225, 0.3);
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  \">
+                    <img src=\"${img}\" alt=\"介紹圖片 ${index + 1}\" style=\"
+                      width: 100%;
+                      height: 160px;
+                      object-fit: cover;
+                      display: block;
+                    \">
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <!-- 右側：統計數據 -->
-        <div style="display: flex; gap: 32px; align-items: center;">
-          <div style="text-align: center;">
-            <div style="font-weight: bold; color: white; font-size: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);" id="followersCount">1.2K</div>
-            <div style="color: rgba(255, 255, 255, 0.8); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">追蹤數</div>
-          </div>
-          <div style="text-align: center;">
-            <div style="font-weight: bold; color: white; font-size: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">${
-              fileInfo ? fileInfo.downloads : 0
-            }</div>
-            <div style="color: rgba(255, 255, 255, 0.8); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">下載量</div>
-          </div>
-          <div style="text-align: center;">
-            <div style="font-weight: bold; color: white; font-size: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">4.8</div>
-            <div style="color: rgba(255, 255, 255, 0.8); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">評分</div>
-          </div>
-          
-          <!-- 追蹤按鈕 -->
-          <button onclick="event.stopPropagation(); toggleFollow()" id="followBtn" style="
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 8px 16px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            font-size: 12px;
-            color: white;
-            font-weight: 500;
-            pointer-events: all;
-          ">
-            <span id="heartIcon" style="margin-right: 4px;">♡</span>
-            追蹤
-          </button>
-        </div>
-      </div>
-    </div>
+          `;
+      } else {
+        // 如果沒有介紹圖片，不顯示任何內容
+        return "";
+      }
+    })()}
+
 
     <div class="main-grid">
       <div class="card">
@@ -970,12 +938,6 @@ router.get(
         <!-- 功能按鈕區域 -->
         <div class="action-buttons">
           <div class="action-buttons-top">
-            <button class="action-btn btn-share" onclick="shareContent()" id="shareBtn">
-              <span>🔗</span>
-              分享
-            </button>
-          </div>
-          <div class="action-buttons-bottom">
             <button class="action-btn btn-preview" onclick="previewContent()" id="previewBtn">
               <span>👁️</span>
               線上閱讀
@@ -983,6 +945,12 @@ router.get(
             <button class="action-btn btn-favorite" onclick="toggleFavorite()" id="favoriteBtn">
               <span id="favoriteIcon">❤️</span>
               收藏
+            </button>
+          </div>
+          <div class="action-buttons-bottom">
+            <button class="action-btn btn-share" onclick="shareContent()" id="shareBtn">
+              <span>🔗</span>
+              分享連結
             </button>
           </div>
         </div>
@@ -1031,11 +999,85 @@ router.get(
       </div>
     </div>
 
+    
+    <!-- 作者資訊Banner區域 (移至內容簡介區域之前) -->
+    ${(() => {
+      if (pageToRender.user) {
+        return `
+          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px; transition: transform 0.3s ease; cursor: pointer;" onclick="goToUserProfile()">
+            <!-- 頭像區域 -->
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3);">
+              ${pageToRender.user.name.charAt(0).toUpperCase()}
+            </div>
+
+            <!-- 作者資訊區域 -->
+            <div style="flex: 1;">
+              <h5 style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 0 0 8px 0;">作者：${
+                pageToRender.user.name
+              }</h5>
+              <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.5;">
+                ${
+                  pageToRender.user.bio ||
+                  "專業的內容創作者，致力於分享高品質的資源與知識。"
+                }
+              </p>
+
+              <!-- 統計資訊 -->
+              <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
+                <span style="color: #9ca3af; font-size: 13px;">
+                  ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
+                </span>
+                <span style="color: #9ca3af; font-size: 13px;">
+                  📅 ${new Date(pageToRender.createdAt).toLocaleDateString(
+                    "zh-TW"
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <!-- 箭頭圖示 -->
+            <div style="color: #9ca3af; font-size: 20px; flex-shrink: 0;">
+              →
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
+            <!-- 默認頭像 -->
+            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6b7280, #4b5563); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3);">
+              西
+            </div>
+
+            <!-- 作者資訊區域 -->
+            <div style="flex: 1;">
+              <h5 style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 0 0 8px 0;">作者：西譯社</h5>
+              <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.5;">
+                專業的內容創作者，致力於分享高品質的資源與知識。
+              </p>
+
+              <!-- 統計資訊 -->
+              <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
+                <span style="color: #9ca3af; font-size: 13px;">
+                  ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
+                </span>
+                <span style="color: #9ca3af; font-size: 13px;">
+                  📅 ${new Date(pageToRender.createdAt).toLocaleDateString(
+                    "zh-TW"
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    })()}
+
     <!-- 內容簡介與會員評價 - 網格外單獨的完整寬度區域 -->
-    <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 30px; margin-top: 40px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px);\">
+    <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 30px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px);\">
       <!-- 內容簡介 -->
       <div style=\"margin-bottom: 40px;\">
-        <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">📖 內容簡介</h4>
+        <h4 style=\"background: #F2F2F2; padding: 16px 24px; margin: -8px -8px 20px -8px; border-radius: 8px; font-size: 24px; font-weight: 600; color: #1f2937; border-left: 4px solid #3b82f6;\">📖 內容簡介</h4>
         <div style=\"color: #4b5563; line-height: 1.7; font-size: 15px; margin-bottom: 25px;\">
            ${
              // 優先檢查頁面的 content 字段
@@ -1066,7 +1108,7 @@ router.get(
 
       <!-- 會員評價 -->
       <div>
-        <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">⭐ 會員評價</h4>
+        <h4 style=\"background: #F2F2F2; padding: 16px 24px; margin: -8px -8px 20px -8px; border-radius: 8px; font-size: 24px; font-weight: 600; color: #1f2937; border-left: 4px solid #f59e0b;\">⭐ 會員評價</h4>
 
         <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;\">
           <!-- Review 1 -->
@@ -1642,6 +1684,30 @@ router.get(
       }
     }
     
+    // 打開圖片模態框
+    function openImageModal(imageSrc, title) {
+      showModal(
+        title || '圖片預覽',
+        \`
+          <div style="text-align: center; margin: 16px 0;">
+            <img src="\${imageSrc}" alt="\${title}" style="
+              max-width: 100%;
+              max-height: 400px;
+              border-radius: 8px;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            ">
+          </div>
+        \`,
+        [
+          {
+            text: '關閉',
+            primary: true,
+            onClick: () => {}
+          }
+        ]
+      );
+    }
+    
     // 頁面載入時初始化收藏狀態
     document.addEventListener('DOMContentLoaded', function() {
       initializeGallery();
@@ -1854,7 +1920,7 @@ router.get(
     .user-banner {
       width: 100%;
       height: 220px;
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      background: #F2F2F2;
       border-radius: 12px;
       margin-bottom: 40px;
       overflow: hidden;
@@ -1949,31 +2015,39 @@ router.get(
     
     /* 追蹤按鈕 */
     .follow-btn {
-      background: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
       color: white;
       border: none;
-      padding: 8px 20px;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 15px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       margin-bottom: 16px;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      min-width: 100px;
+      justify-content: center;
     }
     
     .follow-btn:hover {
-      background: #1d4ed8;
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
     }
     
     .follow-btn.following {
-      background: #10b981;
+      background: linear-gradient(135deg, #10b981, #059669);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
     }
     
     .follow-btn.following:hover {
-      background: #059669;
+      background: linear-gradient(135deg, #059669, #047857);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
     }
     
     /* 簡介區域 */
@@ -2163,7 +2237,7 @@ router.get(
     .file-icon-txt, .file-icon-file { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
     .file-icon-pdf { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
     .file-icon-jpg, .file-icon-jpeg, .file-icon-png, .file-icon-gif, .file-icon-webp { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
-    .file-icon-doc, .file-icon-docx { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+    .file-icon-doc, .file-icon-docx { background: #F2F2F2; }
     .file-icon-xls, .file-icon-xlsx { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
     .file-icon-ppt, .file-icon-pptx { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
     .file-icon-zip, .file-icon-rar, .file-icon-7z { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }

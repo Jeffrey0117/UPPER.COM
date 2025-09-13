@@ -39,6 +39,9 @@ router.post(
       content,
       fileId,
       template = "xiyi-download",
+      images,
+      introImages,
+      requireEmail = true,
     } = req.body;
 
     if (!title) {
@@ -77,7 +80,11 @@ router.post(
         settings: JSON.stringify({
           theme: "xiyi",
           layout: "default",
+          requireEmail: requireEmail === "true",
         }),
+        images: images || null,
+        introImages: introImages || null,
+        isActive: true,
       },
       include: {
         file: true,
@@ -99,7 +106,15 @@ router.put(
   "/:id",
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { title, description, content, fileId, settings, images } = req.body;
+    const {
+      title,
+      description,
+      content,
+      fileId,
+      settings,
+      images,
+      introImages,
+    } = req.body;
 
     const page = await prisma.page.findUnique({
       where: { id: parseInt(id) },
@@ -133,6 +148,7 @@ router.put(
             : page.fileId,
         settings: settings ? JSON.stringify(settings) : page.settings,
         images: images !== undefined ? images : page.images,
+        introImages: introImages !== undefined ? introImages : page.introImages,
       },
       include: {
         file: true,

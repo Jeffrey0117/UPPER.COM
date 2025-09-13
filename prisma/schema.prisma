@@ -70,6 +70,7 @@ model Page {
   slug           String   @unique
   description    String?
   content        String?  // 新增：頁面內容簡介，獨立於檔案內容
+  introImages    String?  @map("intro_images_json") // 新增：儲存介紹圖片的 JSON 資料
   template       String   @default("xiyi-download")
   fileId         Int?     @map("file_id")
   settings       String?  @map("settings_text") // JSON as text
