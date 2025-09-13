@@ -430,70 +430,119 @@ router.get(
       backdrop-filter: blur(10px);
     }
     
-    /* 輪播容器 - 固定 500x420 */
-    .carousel-container { 
-      width: 500px; 
-      height: 420px; 
-      border-radius: 12px; 
-      overflow: hidden; 
-      position: relative; 
+    /* 圖片展示區域 - 上大圖下小圖結構 */
+    .image-gallery {
+      width: 500px;
       margin: 0 auto 20px auto;
+    }
+    
+    /* 主要大圖區域 */
+    .main-image-container {
+      width: 100%;
+      height: 450px;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 16px;
       background: #f3f4f6;
     }
     
-    .carousel-slide { 
-      position: absolute; 
-      top: 0; 
-      left: 0; 
-      width: 100%; 
-      height: 100%; 
-      opacity: 0; 
-      transition: opacity 0.5s ease; 
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 0.3s ease;
     }
     
-    .carousel-slide.active { opacity: 1; }
-    
-    .carousel-slide img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
+    /* 縮圖區域 */
+    .thumbnail-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     
-    .carousel-nav { 
-      position: absolute; 
-      top: 50%; 
-      transform: translateY(-50%); 
-      background: rgba(0,0,0,0.5); 
-      color: white; 
-      border: none; 
-      padding: 10px 15px; 
-      cursor: pointer; 
-      border-radius: 50%; 
+    .thumbnail-wrapper {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
     }
     
-    .carousel-nav:hover { background: rgba(0,0,0,0.7); }
-    .carousel-prev { left: 10px; }
-    .carousel-next { right: 10px; }
-    
-    .carousel-dots { 
-      position: absolute; 
-      bottom: 15px; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      display: flex; 
-      gap: 8px; 
+    .thumbnail-track {
+      display: flex;
+      gap: 8px;
+      transition: transform 0.3s ease;
+      width: max-content;
     }
     
-    .carousel-dot { 
-      width: 8px; 
-      height: 8px; 
-      border-radius: 50%; 
-      background: rgba(255,255,255,0.5); 
-      border: none; 
-      cursor: pointer; 
+    .thumbnail {
+      width: 80px;
+      height: 60px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
     }
     
-    .carousel-dot.active { background: white; }
+    .thumbnail.active {
+      border-color: #3b82f6;
+      transform: scale(1.05);
+    }
+    
+    .thumbnail:hover {
+      border-color: #93c5fd;
+      transform: scale(1.02);
+    }
+    
+    .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* 左右切換按鈕 */
+    .thumbnail-nav {
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+    
+    .thumbnail-nav:hover {
+      background: rgba(0,0,0,0.8);
+      transform: scale(1.1);
+    }
+    
+    .thumbnail-nav:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .thumbnail-nav.prev { margin-right: 8px; }
+    .thumbnail-nav.next { margin-left: 8px; }
+    
+    /* 檔案圖示容器適配 */
+    .file-icon-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      width: 100%;
+      height: 100%;
+    }
     
     .btn { 
       background: #16a34a; 
@@ -625,7 +674,7 @@ router.get(
 
     @media (max-width: 768px) {
       .main-grid { grid-template-columns: 1fr; }
-      .carousel-container { width: 100%; max-width: 500px; height: 280px; }
+      .main-image-container { height: 300px; }
       
       .file-icon {
         width: 200px;
@@ -634,6 +683,108 @@ router.get(
       
       .file-icon-extension {
         font-size: 32px;
+      }
+      
+      .image-gallery {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
+      }
+    }
+    /* 功能按鈕區域 */
+    .action-buttons {
+      margin-top: 16px;
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 12px;
+    }
+    
+    .action-buttons-top {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    
+    .action-buttons-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .action-btn {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      color: white;
+      text-align: center;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .btn-share {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-share:hover {
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+    }
+    
+    .btn-preview {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-preview:hover {
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+    }
+    
+    .btn-favorite {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+    
+    .btn-favorite:hover {
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+    }
+    
+    .btn-favorite.favorited {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    @media (max-width: 768px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .main-image-container { height: 300px; }
+      
+      .file-icon {
+        width: 200px;
+        height: 250px;
+      }
+      
+      .file-icon-extension {
+        font-size: 32px;
+      }
+      
+      .image-gallery {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto 20px auto;
+      }
+      
+      .action-buttons-bottom {
+        grid-template-columns: 1fr;
+        gap: 8px;
       }
     }
   </style>
@@ -735,62 +886,101 @@ router.get(
           images && images.length > 0
             ? images.length === 1
               ? images[0].startsWith("css-file-icon:")
-                ? `<div class="carousel-container file-icon-container">
-                    <div class="file-icon file-icon-${images[0].replace(
-                      "css-file-icon:",
-                      ""
-                    )}">
-                      <div class="file-icon-extension">.${images[0]
-                        .replace("css-file-icon:", "")
-                        .toUpperCase()}</div>
+                ? `<div class="image-gallery">
+                    <div class="main-image-container file-icon-container">
+                      <div class="file-icon file-icon-${images[0].replace(
+                        "css-file-icon:",
+                        ""
+                      )}">
+                        <div class="file-icon-extension">.${images[0]
+                          .replace("css-file-icon:", "")
+                          .toUpperCase()}</div>
+                      </div>
                     </div>
                   </div>`
-                : `<div class="carousel-container">
-                    <img src="${images[0]}" alt="${pageToRender.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                : `<div class="image-gallery">
+                    <div class="main-image-container">
+                      <img src="${images[0]}" alt="${pageToRender.title}" class="main-image">
+                    </div>
                   </div>`
-              : `<div class="carousel-container">
-                  ${images
-                    .map(
-                      (img, index) =>
-                        `<div class="carousel-slide ${
-                          index === 0 ? "active" : ""
-                        }">
-                          ${
-                            img.startsWith("css-file-icon:")
-                              ? `<div class="file-icon file-icon-${img.replace(
-                                  "css-file-icon:",
-                                  ""
-                                )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                                <div class="file-icon-extension">.${img
-                                  .replace("css-file-icon:", "")
-                                  .toUpperCase()}</div>
-                              </div>`
-                              : `<img src="${img}" alt="${
-                                  pageToRender.title
-                                } - 圖片 ${index + 1}">`
-                          }
+              : `<div class="image-gallery">
+                  <!-- 主要大圖區域 -->
+                  <div class="main-image-container">
+                    ${
+                      images[0].startsWith("css-file-icon:")
+                        ? `<div class="file-icon file-icon-${images[0].replace(
+                            "css-file-icon:",
+                            ""
+                          )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                          <div class="file-icon-extension">.${images[0]
+                            .replace("css-file-icon:", "")
+                            .toUpperCase()}</div>
                         </div>`
-                    )
-                    .join("")}
+                        : `<img src="${images[0]}" alt="${pageToRender.title} - 圖片 1" class="main-image" id="mainImage">`
+                    }
+                  </div>
                   
-                  <button class="carousel-nav carousel-prev" onclick="changeSlide(-1)">‹</button>
-                  <button class="carousel-nav carousel-next" onclick="changeSlide(1)">›</button>
-                  
-                  <div class="carousel-dots">
-                    ${images
-                      .map(
-                        (_, index) =>
-                          `<button class="carousel-dot ${
-                            index === 0 ? "active" : ""
-                          }" onclick="goToSlide(${index})"></button>`
-                      )
-                      .join("")}
+                  <!-- 縮圖導航區域 -->
+                  <div class="thumbnail-container">
+                    <button class="thumbnail-nav prev" onclick="scrollThumbnails(-1)" id="prevBtn">‹</button>
+                    
+                    <div class="thumbnail-wrapper">
+                      <div class="thumbnail-track" id="thumbnailTrack">
+                        ${images
+                          .map(
+                            (img, index) =>
+                              `<div class="thumbnail ${
+                                index === 0 ? "active" : ""
+                              }" onclick="changeMainImage(${index})">
+                                ${
+                                  img.startsWith("css-file-icon:")
+                                    ? `<div class="file-icon file-icon-${img.replace(
+                                        "css-file-icon:",
+                                        ""
+                                      )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                      .${img
+                                        .replace("css-file-icon:", "")
+                                        .toUpperCase()}
+                                    </div>`
+                                    : `<img src="${img}" alt="${
+                                        pageToRender.title
+                                      } - 縮圖 ${index + 1}">`
+                                }
+                              </div>`
+                          )
+                          .join("")}
+                      </div>
+                    </div>
+                    
+                    <button class="thumbnail-nav next" onclick="scrollThumbnails(1)" id="nextBtn">›</button>
                   </div>
                 </div>`
-            : `<div class="carousel-container" style="display: flex; align-items: center; justify-content: center; color: #9ca3af;">
-                <span>產品封面</span>
+            : `<div class="image-gallery">
+                <div class="main-image-container" style="display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+                  <span>產品封面</span>
+                </div>
               </div>`
         }
+        
+        <!-- 功能按鈕區域 -->
+        <div class="action-buttons">
+          <div class="action-buttons-top">
+            <button class="action-btn btn-share" onclick="shareContent()" id="shareBtn">
+              <span>🔗</span>
+              分享
+            </button>
+          </div>
+          <div class="action-buttons-bottom">
+            <button class="action-btn btn-preview" onclick="previewContent()" id="previewBtn">
+              <span>👁️</span>
+              線上閱讀
+            </button>
+            <button class="action-btn btn-favorite" onclick="toggleFavorite()" id="favoriteBtn">
+              <span id="favoriteIcon">❤️</span>
+              收藏
+            </button>
+          </div>
+        </div>
       </div>
       
       <!-- 右側卡片 - 包含標題資訊和免費下載 -->
@@ -1009,35 +1199,82 @@ router.get(
   </footer>
 
   <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dots = document.querySelectorAll('.carousel-dot');
+    // 新的畫廊系統變數
+    let currentImageIndex = 0;
+    const images = document.querySelectorAll('.thumbnail');
+    const mainImage = document.getElementById('mainImage');
+    const thumbnailTrack = document.getElementById('thumbnailTrack');
+    let currentThumbnailOffset = 0;
     
-    function showSlide(index) {
-      slides.forEach((slide, i) => {
-        slide.classList.toggle('active', i === index);
+    // 更換主圖
+    function changeMainImage(index) {
+      if (!images || images.length === 0) return;
+      
+      // 更新 active 狀態
+      images.forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
       });
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === index);
-      });
-      currentSlide = index;
+      
+      // 更新主圖
+      if (mainImage) {
+        const selectedThumbnail = images[index];
+        const imgElement = selectedThumbnail.querySelector('img');
+        if (imgElement) {
+          mainImage.src = imgElement.src;
+          mainImage.alt = imgElement.alt;
+        }
+      }
+      
+      currentImageIndex = index;
     }
     
-    function changeSlide(direction) {
-      const newIndex = (currentSlide + direction + slides.length) % slides.length;
-      showSlide(newIndex);
+    // 縮圖滾動
+    function scrollThumbnails(direction) {
+      if (!thumbnailTrack || !images || images.length <= 4) return; // 如果縮圖少於4個就不需要滾動
+      
+      const thumbnailWidth = 88; // 80px + 8px gap
+      const maxOffset = -(images.length - 4) * thumbnailWidth;
+      
+      currentThumbnailOffset += direction * thumbnailWidth;
+      
+      // 限制滾動範圍
+      if (currentThumbnailOffset > 0) {
+        currentThumbnailOffset = 0;
+      } else if (currentThumbnailOffset < maxOffset) {
+        currentThumbnailOffset = maxOffset;
+      }
+      
+      thumbnailTrack.style.transform = \`translateX(\${currentThumbnailOffset}px)\`;
+      
+      // 更新按鈕狀態
+      updateNavigationButtons();
     }
     
-    function goToSlide(index) {
-      showSlide(index);
+    // 更新導航按鈕狀態
+    function updateNavigationButtons() {
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      
+      if (!prevBtn || !nextBtn || !images || images.length <= 4) return;
+      
+      const thumbnailWidth = 88;
+      const maxOffset = -(images.length - 4) * thumbnailWidth;
+      
+      prevBtn.disabled = currentThumbnailOffset >= 0;
+      nextBtn.disabled = currentThumbnailOffset <= maxOffset;
     }
     
-    // 自動輪播
-    if (slides.length > 1) {
-      setInterval(() => {
-        changeSlide(1);
-      }, 5000);
+    // 初始化畫廊
+    function initializeGallery() {
+      if (images && images.length > 0) {
+        // 設定第一張圖為預設
+        changeMainImage(0);
+        updateNavigationButtons();
+      }
     }
+    
+    // 頁面載入完成後初始化
+    document.addEventListener('DOMContentLoaded', initializeGallery);
     
     // Follow functionality
     let isFollowing = false;
@@ -1103,6 +1340,128 @@ router.get(
         alert('發生錯誤，請稍後再試');
       }
     }
+    
+    // 分享功能
+    async function shareContent() {
+      const shareBtn = document.getElementById('shareBtn');
+      const originalText = shareBtn.innerHTML;
+      
+      const shareData = {
+        title: '${pageToRender.title}',
+        text: '${pageToRender.description || "免費下載資源"}',
+        url: window.location.href
+      };
+      
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+          shareBtn.innerHTML = '<span>✅</span>已分享';
+          setTimeout(() => {
+            shareBtn.innerHTML = originalText;
+          }, 2000);
+        } else {
+          // 備用方案：複製到剪貼板
+          await navigator.clipboard.writeText(window.location.href);
+          shareBtn.innerHTML = '<span>📋</span>已複製';
+          setTimeout(() => {
+            shareBtn.innerHTML = originalText;
+          }, 2000);
+        }
+      } catch (error) {
+        console.error('分享失敗:', error);
+        shareBtn.innerHTML = '<span>❌</span>分享失敗';
+        setTimeout(() => {
+          shareBtn.innerHTML = originalText;
+        }, 2000);
+      }
+    }
+    
+    // 線上閱讀功能
+    function previewContent() {
+      const previewBtn = document.getElementById('previewBtn');
+      const originalText = previewBtn.innerHTML;
+      
+      ${
+        fileInfo
+          ? `
+      const fileName = '${fileInfo.name}';
+      const fileExtension = fileName.split('.').pop().toLowerCase();
+      
+      if (['pdf', 'html', 'txt', 'md'].includes(fileExtension)) {
+        previewBtn.innerHTML = '<span>🔄</span>載入中...';
+        const previewUrl = '/download/${fileInfo.downloadSlug}';
+        window.open(previewUrl, '_blank');
+        
+        setTimeout(() => {
+          previewBtn.innerHTML = '<span>✅</span>已開啟';
+          setTimeout(() => {
+            previewBtn.innerHTML = originalText;
+          }, 1500);
+        }, 500);
+      } else {
+        previewBtn.innerHTML = '<span>❌</span>不支援預覽';
+        setTimeout(() => {
+          previewBtn.innerHTML = originalText;
+        }, 2000);
+      }
+      `
+          : `
+      previewBtn.innerHTML = '<span>❌</span>無檔案';
+      setTimeout(() => {
+        previewBtn.innerHTML = originalText;
+      }, 2000);
+      `
+      }
+    }
+    
+    // 收藏功能
+    function toggleFavorite() {
+      const favoriteBtn = document.getElementById('favoriteBtn');
+      const favoriteIcon = document.getElementById('favoriteIcon');
+      const pageSlug = '${pageToRender.slug}';
+      
+      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const isFavorited = favorites.includes(pageSlug);
+      
+      if (isFavorited) {
+        // 移除收藏
+        favorites = favorites.filter(slug => slug !== pageSlug);
+        favoriteIcon.innerHTML = '❤️';
+        favoriteBtn.classList.remove('favorited');
+        favoriteBtn.innerHTML = '<span>💔</span>已取消收藏';
+      } else {
+        // 加入收藏
+        favorites.push(pageSlug);
+        favoriteIcon.innerHTML = '💖';
+        favoriteBtn.classList.add('favorited');
+        favoriteBtn.innerHTML = '<span>💖</span>已收藏';
+      }
+      
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+      
+      setTimeout(() => {
+        favoriteBtn.innerHTML = '<span id="favoriteIcon">' + favoriteIcon.innerHTML + '</span>收藏';
+      }, 2000);
+    }
+    
+    // 初始化收藏狀態
+    function initializeFavorite() {
+      const pageSlug = '${pageToRender.slug}';
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const favoriteBtn = document.getElementById('favoriteBtn');
+      const favoriteIcon = document.getElementById('favoriteIcon');
+      
+      if (favorites.includes(pageSlug)) {
+        favoriteIcon.innerHTML = '💖';
+        favoriteBtn.classList.add('favorited');
+      }
+    }
+    
+    // 頁面載入時初始化收藏狀態
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeGallery();
+      initializeFavorite();
+    });
   </script>
 
 </body>
