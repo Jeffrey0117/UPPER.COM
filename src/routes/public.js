@@ -218,6 +218,7 @@ router.get(
         where: { slug: slug },
         include: {
           file: true,
+          user: true,
         },
       });
 
@@ -806,7 +807,7 @@ router.get(
     </nav>
     
     <!-- 作者資訊Banner區域 (重新設計) -->
-    <div style="
+    <div onclick="goToUserProfile()" style="
       width: 100%;
       height: 120px;
       background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -815,7 +816,9 @@ router.get(
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
-    ">
+      cursor: pointer;
+      transition: all 0.3s ease;
+    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(59, 130, 246, 0.3)'" onmouseout="this.style.transform='translateY(0px)'; this.style.boxShadow='0 4px 16px rgba(59, 130, 246, 0.2)'">
       
       <!-- 作者資訊橫條 -->
       <div style="
@@ -828,6 +831,7 @@ router.get(
         align-items: center;
         padding: 0 32px;
         z-index: 2;
+        pointer-events: none;
       ">
         <!-- 左側：頭像和基本資訊 -->
         <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
@@ -861,7 +865,7 @@ router.get(
           </div>
           
           <!-- 追蹤按鈕 -->
-          <button onclick="toggleFollow()" id="followBtn" style="
+          <button onclick="event.stopPropagation(); toggleFollow()" id="followBtn" style="
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             cursor: pointer;
@@ -872,6 +876,7 @@ router.get(
             font-size: 12px;
             color: white;
             font-weight: 500;
+            pointer-events: all;
           ">
             <span id="heartIcon" style="margin-right: 4px;">♡</span>
             追蹤
@@ -1244,7 +1249,7 @@ router.get(
         currentThumbnailOffset = maxOffset;
       }
       
-      thumbnailTrack.style.transform = \`translateX(\${currentThumbnailOffset}px)\`;
+      thumbnailTrack.style.transform = 'translateX(' + currentThumbnailOffset + 'px)';
       
       // 更新按鈕狀態
       updateNavigationButtons();
@@ -1341,107 +1346,278 @@ router.get(
       }
     }
     
+    // 追蹤事件的輔助函數
+    async function trackEvent(event, metadata = {}) {
+      try {
+        await fetch('/api/analytics/track', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            pageId: ${pageToRender.id || "null"},
+            event: event,
+            data: {
+              ...metadata,
+              timestamp: new Date().toISOString(),
+              userAgent: navigator.userAgent,
+              referrer: document.referrer,
+              url: window.location.href
+            },
+            userAgent: navigator.userAgent,
+            ipAddress: undefined // 服務器端會處理
+          })
+        });
+      } catch (error) {
+        console.warn('無法追蹤事件:', error);
+      }
+    }
+
+    // 顯示模態窗口
+    function showModal(title, content, actions = []) {
+      // 移除現有的模態窗口
+      const existingModal = document.getElementById('customModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // 創建模態窗口
+      const modal = document.createElement('div');
+      modal.id = 'customModal';
+      modal.innerHTML = \`
+        <div style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10000;
+          backdrop-filter: blur(5px);
+        ">
+          <div style="
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            animation: modalShow 0.3s ease forwards;
+          ">
+            <div style="margin-bottom: 16px;">
+              <h3 style="
+                font-size: 18px;
+                font-weight: 600;
+                color: #1f2937;
+                margin: 0 0 8px 0;
+              ">\${title}</h3>
+              <div style="
+                color: #4b5563;
+                line-height: 1.5;
+                font-size: 14px;
+              ">\${content}</div>
+            </div>
+            <div id="modalActions" style="
+              display: flex;
+              gap: 8px;
+              justify-content: flex-end;
+              margin-top: 20px;
+            "></div>
+          </div>
+        </div>
+        <style>
+          @keyframes modalShow {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+        </style>
+      \`;
+      
+      // 添加動作按鈕
+      const actionsContainer = modal.querySelector('#modalActions');
+      actions.forEach(action => {
+        const button = document.createElement('button');
+        button.textContent = action.text;
+        button.style.cssText = \`
+          padding: 8px 16px;
+          border: none;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          \${action.primary ?
+            'background: #3b82f6; color: white;' :
+            'background: #f3f4f6; color: #6b7280;'
+          }
+        \`;
+        button.onclick = () => {
+          action.onClick();
+          modal.remove();
+        };
+        actionsContainer.appendChild(button);
+      });
+      
+      // 點擊背景關閉
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          modal.remove();
+        }
+      };
+      
+      document.body.appendChild(modal);
+    }
+
     // 分享功能
     async function shareContent() {
       const shareBtn = document.getElementById('shareBtn');
       const originalText = shareBtn.innerHTML;
+      const currentUrl = window.location.href;
       
-      const shareData = {
-        title: '${pageToRender.title}',
-        text: '${pageToRender.description || "免費下載資源"}',
-        url: window.location.href
-      };
+      // 追蹤分享嘗試事件
+      await trackEvent('share_attempt', {
+        shareMethod: 'modal_share',
+        pageTitle: \`${pageToRender.title.replace(/'/g, "\\'")}\`,
+        pageSlug: \`${pageToRender.slug}\`
+      });
       
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          shareBtn.innerHTML = '<span>✅</span>已分享';
-          setTimeout(() => {
-            shareBtn.innerHTML = originalText;
-          }, 2000);
-        } else {
-          // 備用方案：複製到剪貼板
-          await navigator.clipboard.writeText(window.location.href);
-          shareBtn.innerHTML = '<span>📋</span>已複製';
-          setTimeout(() => {
-            shareBtn.innerHTML = originalText;
-          }, 2000);
-        }
-      } catch (error) {
-        console.error('分享失敗:', error);
-        shareBtn.innerHTML = '<span>❌</span>分享失敗';
-        setTimeout(() => {
-          shareBtn.innerHTML = originalText;
-        }, 2000);
-      }
+      // 顯示分享模態窗口
+      showModal(
+        '分享連結',
+        \`
+          <div style="margin: 16px 0;">
+            <p style="margin-bottom: 12px; color: #374151;">複製下方連結分享給朋友：</p>
+            <div style="
+              background: #f9fafb;
+              border: 1px solid #e5e7eb;
+              border-radius: 6px;
+              padding: 12px;
+              font-family: monospace;
+              font-size: 12px;
+              word-break: break-all;
+              color: #1f2937;
+            ">\${currentUrl}</div>
+          </div>
+        \`,
+        [
+          {
+            text: '取消',
+            primary: false,
+            onClick: () => {}
+          },
+          {
+            text: '複製連結',
+            primary: true,
+            onClick: async () => {
+              try {
+                await navigator.clipboard.writeText(currentUrl);
+                shareBtn.innerHTML = '<span>✅</span>已複製';
+                
+                // 追蹤複製成功
+                await trackEvent('share_success', {
+                  shareMethod: 'clipboard',
+                  pageTitle: \`${pageToRender.title.replace(/'/g, "\\'")}\`,
+                  pageSlug: \`${pageToRender.slug}\`
+                });
+                
+                setTimeout(() => {
+                  shareBtn.innerHTML = originalText;
+                }, 2000);
+              } catch (error) {
+                console.error('複製失敗:', error);
+                shareBtn.innerHTML = '<span>❌</span>複製失敗';
+                
+                // 追蹤分享失敗
+                await trackEvent('share_failed', {
+                  shareMethod: 'clipboard',
+                  error: error.message,
+                  pageTitle: \`${pageToRender.title.replace(/'/g, "\\'")}\`,
+                  pageSlug: \`${pageToRender.slug}\`
+                });
+                
+                setTimeout(() => {
+                  shareBtn.innerHTML = originalText;
+                }, 2000);
+              }
+            }
+          }
+        ]
+      );
     }
     
-    // 線上閱讀功能
-    function previewContent() {
-      const previewBtn = document.getElementById('previewBtn');
-      const originalText = previewBtn.innerHTML;
+    // 線上閱讀功能 - 顯示登入提示
+    async function previewContent() {
+      // 追蹤預覽嘗試事件
+      await trackEvent('preview_attempt', {
+        requiresLogin: true,
+        pageTitle: \`${pageToRender.title.replace(/'/g, "\\'")}\`,
+        pageSlug: \`${pageToRender.slug}\`
+      });
       
-      ${
-        fileInfo
-          ? `
-      const fileName = '${fileInfo.name}';
-      const fileExtension = fileName.split('.').pop().toLowerCase();
-      
-      if (['pdf', 'html', 'txt', 'md'].includes(fileExtension)) {
-        previewBtn.innerHTML = '<span>🔄</span>載入中...';
-        const previewUrl = '/download/${fileInfo.downloadSlug}';
-        window.open(previewUrl, '_blank');
-        
-        setTimeout(() => {
-          previewBtn.innerHTML = '<span>✅</span>已開啟';
-          setTimeout(() => {
-            previewBtn.innerHTML = originalText;
-          }, 1500);
-        }, 500);
-      } else {
-        previewBtn.innerHTML = '<span>❌</span>不支援預覽';
-        setTimeout(() => {
-          previewBtn.innerHTML = originalText;
-        }, 2000);
-      }
-      `
-          : `
-      previewBtn.innerHTML = '<span>❌</span>無檔案';
-      setTimeout(() => {
-        previewBtn.innerHTML = originalText;
-      }, 2000);
-      `
-      }
+      showModal(
+        '線上閱讀需要登入',
+        \`
+          <div style="text-align: center; margin: 16px 0;">
+            <div style="font-size: 48px; margin-bottom: 16px;">👤</div>
+            <p style="color: #4b5563; margin-bottom: 8px;">
+              線上閱讀功能需要登入後才能使用
+            </p>
+            <p style="color: #6b7280; font-size: 13px;">
+              登入後可享受更多專屬功能和內容
+            </p>
+          </div>
+        \`,
+        [
+          {
+            text: '取消',
+            primary: false,
+            onClick: () => {}
+          },
+          {
+            text: '前往登入',
+            primary: true,
+            onClick: () => {
+              window.location.href = '/admin.html';
+            }
+          }
+        ]
+      );
     }
     
-    // 收藏功能
+    // 收藏功能 - 顯示登入提示
     function toggleFavorite() {
-      const favoriteBtn = document.getElementById('favoriteBtn');
-      const favoriteIcon = document.getElementById('favoriteIcon');
-      const pageSlug = '${pageToRender.slug}';
-      
-      let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-      const isFavorited = favorites.includes(pageSlug);
-      
-      if (isFavorited) {
-        // 移除收藏
-        favorites = favorites.filter(slug => slug !== pageSlug);
-        favoriteIcon.innerHTML = '❤️';
-        favoriteBtn.classList.remove('favorited');
-        favoriteBtn.innerHTML = '<span>💔</span>已取消收藏';
-      } else {
-        // 加入收藏
-        favorites.push(pageSlug);
-        favoriteIcon.innerHTML = '💖';
-        favoriteBtn.classList.add('favorited');
-        favoriteBtn.innerHTML = '<span>💖</span>已收藏';
-      }
-      
-      localStorage.setItem('favorites', JSON.stringify(favorites));
-      
-      setTimeout(() => {
-        favoriteBtn.innerHTML = '<span id="favoriteIcon">' + favoriteIcon.innerHTML + '</span>收藏';
-      }, 2000);
+      showModal(
+        '收藏功能需要登入',
+        \`
+          <div style="text-align: center; margin: 16px 0;">
+            <div style="font-size: 48px; margin-bottom: 16px;">❤️</div>
+            <p style="color: #4b5563; margin-bottom: 8px;">
+              收藏功能需要登入後才能使用
+            </p>
+            <p style="color: #6b7280; font-size: 13px;">
+              登入後可收藏喜愛的內容，隨時查看
+            </p>
+          </div>
+        \`,
+        [
+          {
+            text: '取消',
+            primary: false,
+            onClick: () => {}
+          },
+          {
+            text: '前往登入',
+            primary: true,
+            onClick: () => {
+              window.location.href = '/admin.html';
+            }
+          }
+        ]
+      );
     }
     
     // 初始化收藏狀態
@@ -1454,6 +1630,15 @@ router.get(
       if (favorites.includes(pageSlug)) {
         favoriteIcon.innerHTML = '💖';
         favoriteBtn.classList.add('favorited');
+      }
+    }
+    
+    // 前往用戶個人檔案頁面
+    function goToUserProfile() {
+      ${
+        pageToRender.user
+          ? `window.location.href = '/user/${pageToRender.user.id}';`
+          : `console.log('無用戶資訊');`
       }
     }
     
@@ -1719,11 +1904,19 @@ router.get(
     .user-sidebar {
       background: rgba(248, 250, 252, 0.8);
       border-radius: 12px;
-      padding: 30px;
+      padding: 0;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
       border: 1px solid rgba(203, 213, 225, 0.6);
       backdrop-filter: blur(10px);
       height: fit-content;
+      overflow: hidden;
+    }
+    
+    /* 頭像和基本資訊區域 */
+    .profile-header {
+      padding: 30px;
+      text-align: center;
+      border-bottom: 1px solid rgba(203, 213, 225, 0.4);
     }
     
     .user-avatar {
@@ -1738,30 +1931,131 @@ router.get(
       font-weight: bold;
       font-size: 48px;
       margin: 0 auto 20px auto;
+      border: 4px solid rgba(255, 255, 255, 0.2);
     }
     
     .user-name {
       font-size: 24px;
       font-weight: bold;
       color: #1f2937;
-      text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 4px;
     }
     
+    .user-username {
+      color: #6b7280;
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    
+    /* 追蹤按鈕 */
+    .follow-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .follow-btn:hover {
+      background: #1d4ed8;
+    }
+    
+    .follow-btn.following {
+      background: #10b981;
+    }
+    
+    .follow-btn.following:hover {
+      background: #059669;
+    }
+    
+    /* 簡介區域 */
     .user-bio {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    
+    /* 詳細資訊區域 */
+    .user-details {
+      padding: 20px 30px;
+    }
+    
+    .user-details .detail-item {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #4b5563;
+    }
+    
+    .detail-icon {
+      width: 16px;
       color: #6b7280;
       text-align: center;
-      margin-bottom: 20px;
-      line-height: 1.5;
     }
     
+    .detail-link {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    
+    .detail-link:hover {
+      text-decoration: underline;
+    }
+    
+    /* 社群帳號區域 */
+    .social-section {
+      padding: 20px 30px;
+      border-top: 1px solid rgba(203, 213, 225, 0.4);
+    }
+    
+    .social-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+    
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 0;
+      transition: color 0.3s ease;
+    }
+    
+    .social-link:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    
+    /* 統計區域 */
     .user-stats {
       display: flex;
       justify-content: space-around;
-      padding: 20px 0;
+      padding: 20px 30px;
       border-top: 1px solid rgba(203, 213, 225, 0.4);
-      border-bottom: 1px solid rgba(203, 213, 225, 0.4);
-      margin: 20px 0;
+      margin: 0;
     }
     
     .stat-item {
@@ -1769,7 +2063,7 @@ router.get(
     }
     
     .stat-number {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       color: #1f2937;
     }
@@ -1778,18 +2072,6 @@ router.get(
       font-size: 12px;
       color: #6b7280;
       margin-top: 4px;
-    }
-    
-    .user-details {
-      color: #4b5563;
-      font-size: 14px;
-    }
-    
-    .user-details div {
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
     
     /* Right Content - Files */
@@ -1945,14 +2227,90 @@ router.get(
     <div class="profile-grid">
       <!-- Left Sidebar - User Information -->
       <div class="user-sidebar">
-        <div class="user-avatar">
-          ${user.name.charAt(0).toUpperCase()}
+        <!-- 頭像和基本資訊 -->
+        <div class="profile-header">
+          <div class="user-avatar">
+            ${user.name.charAt(0).toUpperCase()}
+          </div>
+          
+          <div class="user-name">${user.name}</div>
+          <div class="user-username">@${user.email.split("@")[0]}</div>
+          
+          <!-- 追蹤按鈕 -->
+          <button class="follow-btn" onclick="toggleFollow()" id="followBtn">
+            <span id="followIcon">👤</span>
+            <span id="followText">追蹤</span>
+          </button>
+          
+          ${
+            user.bio
+              ? `<div class="user-bio">${user.bio}</div>`
+              : `<div class="user-bio">專業的內容創作者，致力於分享高品質的資源與知識。</div>`
+          }
         </div>
         
-        <div class="user-name">${user.name}</div>
+        <!-- 詳細資訊 -->
+        <div class="user-details">
+          ${
+            user.company
+              ? `<div class="detail-item">
+                   <span class="detail-icon">🏢</span>
+                   <span>${user.company}</span>
+                 </div>`
+              : ""
+          }
+          <div class="detail-item">
+            <span class="detail-icon">📍</span>
+            <span>${user.location || "台灣"}</span>
+          </div>
+          ${
+            user.website
+              ? `<div class="detail-item">
+                   <span class="detail-icon">🔗</span>
+                   <a href="${
+                     user.website
+                   }" target="_blank" class="detail-link">${user.website.replace(
+                  /^https?:\/\//,
+                  ""
+                )}</a>
+                 </div>`
+              : `<div class="detail-item">
+                   <span class="detail-icon">🔗</span>
+                   <a href="https://example.com" target="_blank" class="detail-link">example.com</a>
+                 </div>`
+          }
+          <div class="detail-item">
+            <span class="detail-icon">📅</span>
+            <span>加入於 ${new Date(user.createdAt).toLocaleDateString(
+              "zh-TW"
+            )}</span>
+          </div>
+        </div>
         
-        ${user.bio ? `<div class="user-bio">${user.bio}</div>` : ""}
+        <!-- 社群帳號 -->
+        <div class="social-section">
+          <div class="social-title">社群連結</div>
+          <div class="social-links">
+            <a href="#" class="social-link" target="_blank">
+              <span>🐦</span>
+              <span>Twitter</span>
+            </a>
+            <a href="#" class="social-link" target="_blank">
+              <span>📘</span>
+              <span>Facebook</span>
+            </a>
+            <a href="#" class="social-link" target="_blank">
+              <span>📷</span>
+              <span>Instagram</span>
+            </a>
+            <a href="#" class="social-link" target="_blank">
+              <span>💼</span>
+              <span>LinkedIn</span>
+            </a>
+          </div>
+        </div>
         
+        <!-- 統計數據 -->
         <div class="user-stats">
           <div class="stat-item">
             <div class="stat-number">${totalFiles}</div>
@@ -1966,27 +2324,6 @@ router.get(
             <div class="stat-number">4.8</div>
             <div class="stat-label">評分</div>
           </div>
-        </div>
-        
-        <div class="user-details">
-          ${
-            user.company
-              ? `<div><span style="color: #6b7280;">🏢</span> ${user.company}</div>`
-              : ""
-          }
-          ${
-            user.location
-              ? `<div><span style="color: #6b7280;">📍</span> ${user.location}</div>`
-              : ""
-          }
-          ${
-            user.website
-              ? `<div><span style="color: #6b7280;">🔗</span> <a href="${user.website}" target="_blank" style="color: #3b82f6;">${user.website}</a></div>`
-              : ""
-          }
-          <div><span style="color: #6b7280;">📅</span> 加入於 ${new Date(
-            user.createdAt
-          ).toLocaleDateString("zh-TW")}</div>
         </div>
       </div>
       
@@ -2116,7 +2453,31 @@ router.get(
   </footer>
 
   <script>
-    // Add any interactive features here
+    // 追蹤功能
+    let isFollowing = false;
+    
+    function toggleFollow() {
+      const followBtn = document.getElementById('followBtn');
+      const followIcon = document.getElementById('followIcon');
+      const followText = document.getElementById('followText');
+      
+      isFollowing = !isFollowing;
+      
+      if (isFollowing) {
+        followBtn.classList.add('following');
+        followIcon.textContent = '✓';
+        followText.textContent = '已追蹤';
+      } else {
+        followBtn.classList.remove('following');
+        followIcon.textContent = '👤';
+        followText.textContent = '追蹤';
+      }
+    }
+    
+    // 頁面載入時初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 可以在這裡添加其他初始化邏輯
+    });
   </script>
 </body>
 </html>`);
