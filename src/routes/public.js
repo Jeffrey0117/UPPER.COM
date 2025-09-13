@@ -654,6 +654,81 @@ router.get(
       </div>
     </nav>
     
+    <!-- 作者資訊Banner區域 (重新設計) -->
+    <div style="
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 12px;
+      margin-bottom: 32px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+    ">
+      
+      <!-- 作者資訊橫條 -->
+      <div style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        padding: 0 32px;
+        z-index: 2;
+      ">
+        <!-- 左側：頭像和基本資訊 -->
+        <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); display: flex; align-items: center; justify-content: center; color: #3b82f6; font-weight: bold; font-size: 24px; border: 3px solid rgba(255, 255, 255, 0.9);">
+            西
+          </div>
+          <div>
+            <h3 style="font-size: 20px; font-weight: bold; margin: 0 0 4px 0; color: white; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">西譯社</h3>
+            <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin-bottom: 2px;">@westtranslation</div>
+            <div style="color: rgba(255, 255, 255, 0.8); font-size: 13px;">
+              專業翻譯工作室・提供高品質中英翻譯服務
+            </div>
+          </div>
+        </div>
+        
+        <!-- 右側：統計數據 -->
+        <div style="display: flex; gap: 32px; align-items: center;">
+          <div style="text-align: center;">
+            <div style="font-weight: bold; color: white; font-size: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);" id="followersCount">1.2K</div>
+            <div style="color: rgba(255, 255, 255, 0.8); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">追蹤數</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-weight: bold; color: white; font-size: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">${
+              fileInfo ? fileInfo.downloads : 0
+            }</div>
+            <div style="color: rgba(255, 255, 255, 0.8); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">下載量</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-weight: bold; color: white; font-size: 18px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">4.8</div>
+            <div style="color: rgba(255, 255, 255, 0.8); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">評分</div>
+          </div>
+          
+          <!-- 追蹤按鈕 -->
+          <button onclick="toggleFollow()" id="followBtn" style="
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 8px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            font-size: 12px;
+            color: white;
+            font-weight: 500;
+          ">
+            <span id="heartIcon" style="margin-right: 4px;">♡</span>
+            追蹤
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="main-grid">
       <div class="card">
         ${
@@ -716,66 +791,34 @@ router.get(
                 <span>產品封面</span>
               </div>`
         }
-        
-        <h1>${pageToRender.title}</h1>
-        <div class="meta">
-          ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
-        </div>
-        <div class="description">
-          ${pageToRender.description || "免費下載資源，立即獲取實用內容。"}
-        </div>
-        
-        ${
-          fileInfo
-            ? `<ul style="list-style: disc; padding-left: 20px; margin-bottom: 20px;">
-                <li>檔案名稱：${fileInfo.name}</li>
-                <li>已下載：${fileInfo.downloads} 次</li>
-                <li>格式：PDF（可列印）</li>
-              </ul>`
-            : ""
-        }
       </div>
       
-      <!-- 右側卡片 - 包含作者資訊和下載表單 -->
+      <!-- 右側卡片 - 包含標題資訊和免費下載 -->
       <div class="card" style="padding: 0; display: flex; flex-direction: column; height: fit-content;">
-        <!-- 上方區域 - 作者資訊 -->
-        <div style="background: rgba(59, 130, 246, 0.05); border-radius: 12px 12px 0 0; padding: 24px; border-bottom: 1px solid rgba(203, 213, 225, 0.3); position: relative;">
-          <button onclick="toggleFollow()" id="followBtn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; cursor: pointer; transition: all 0.2s ease; padding: 4px;">
-            <span id="heartIcon" style="color: #ef4444; font-size: 20px;">♡</span>
-          </button>
-          <div style="display: flex; align-items: flex-start; gap: 15px; margin-bottom: 16px;">
-            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 18px; flex-shrink: 0;">
-              西
-            </div>
-            <div style="flex: 1; min-width: 0;">
-              <h3 style="font-size: 16px; font-weight: bold; margin: 0 0 4px 0; color: #1f2937;">西譯社</h3>
-              <div style="color: #6b7280; font-size: 14px; margin-bottom: 8px;">@westtranslation</div>
-              <div style="color: #4b5563; font-size: 14px; line-height: 1.5;">
-                專業翻譯工作室 📚 提供高品質中英翻譯服務<br>
-                ✨ 分享實用語言學習資源和工具<br>
-                💡 致力於打造優質的跨語言溝通橋樑
-              </div>
-            </div>
+        <!-- 上方區域 - 主要內容資訊 -->
+        <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px 12px 0 0; padding: 24px; border-bottom: 1px solid rgba(203, 213, 225, 0.3);">
+          <h1 style="font-size: 24px; margin-bottom: 10px; color: #1f2937;">${
+            pageToRender.title
+          }</h1>
+          <div style="color: #6b7280; margin-bottom: 16px;">
+            ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
           </div>
-          <div style="display: flex; justify-content: space-around; padding-top: 16px; border-top: 1px solid rgba(203, 213, 225, 0.3);">
-            <div style="text-align: center;">
-              <div style="font-weight: bold; color: #1f2937; font-size: 16px;" id="followersCount">1.2K</div>
-              <div style="color: #6b7280; font-size: 12px;">追蹤數</div>
-            </div>
-            <div style="text-align: center;">
-              <div style="font-weight: bold; color: #1f2937; font-size: 16px;">${
-                fileInfo ? fileInfo.downloads : 0
-              }</div>
-              <div style="color: #6b7280; font-size: 12px;">下載量</div>
-            </div>
-            <div style="text-align: center;">
-              <div style="font-weight: bold; color: #1f2937; font-size: 16px;">4.8</div>
-              <div style="color: #6b7280; font-size: 12px;">評分</div>
-            </div>
+          <div style="color: #4b5563; margin-bottom: 16px; line-height: 1.6;">
+            ${pageToRender.description || "免費下載資源，立即獲取實用內容。"}
           </div>
+          
+          ${
+            fileInfo
+              ? `<ul style="list-style: disc; padding-left: 20px; margin-bottom: 0; color: #4b5563;">
+                  <li>檔案名稱：${fileInfo.name}</li>
+                  <li>已下載：${fileInfo.downloads} 次</li>
+                  <li>格式：PDF（可列印）</li>
+                </ul>`
+              : ""
+          }
         </div>
 
-        <!-- 下方區域 - 下載表單 -->
+        <!-- 下方區域 - 免費下載區塊 (移到右邊) -->
         <div style="background: rgba(255, 255, 255, 0.8); border-radius: 0 0 12px 12px; padding: 24px;">
           <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
           <form onsubmit="handleDownload(event)">
@@ -799,17 +842,20 @@ router.get(
       <div style=\"margin-bottom: 40px;\">
         <h4 style=\"font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 20px;\">📖 內容簡介</h4>
         <div style=\"color: #4b5563; line-height: 1.7; font-size: 15px; margin-bottom: 25px;\">
-          ${
-            fileInfo && fileInfo.content
-              ? `<div style="white-space: pre-wrap;">${fileInfo.content}</div>`
-              : pageToRender.description &&
-                pageToRender.description !== "免費下載資源，立即獲取實用內容。"
-              ? `<p style="margin-bottom: 16px;">${pageToRender.description}</p>`
-              : `<p style="margin-bottom: 16px;">這是一個精彩的內容資源，提供實用的知識與工具。<br>
-                   下載後您將獲得詳細的內容介紹與使用說明。<br>
-                   我們致力於提供高品質的學習資料，幫助您提升技能與知識。<br>
-                   立即填寫表單，免費獲取這份珍貴的資源！</p>`
-          }
+           ${
+             // 優先檢查頁面的 content 字段
+             pageToRender.content && pageToRender.content.trim() !== ""
+               ? `<div style="white-space: pre-wrap;">${pageToRender.content}</div>`
+               : fileInfo && fileInfo.content && fileInfo.content.trim() !== ""
+               ? `<div style="white-space: pre-wrap;">${fileInfo.content}</div>`
+               : pageToRender.description &&
+                 pageToRender.description !== "免費下載資源，立即獲取實用內容。"
+               ? `<p style="margin-bottom: 16px;">${pageToRender.description}</p>`
+               : `<p style="margin-bottom: 16px;">這是一個精彩的內容資源，提供實用的知識與工具。<br>
+                    下載後您將獲得詳細的內容介紹與使用說明。<br>
+                    我們致力於提供高品質的學習資料，幫助您提升技能與知識。<br>
+                    立即填寫表單，免費獲取這份珍貴的資源！</p>`
+           }
         </div>
         
         ${

@@ -33,7 +33,13 @@ router.get(
 router.post(
   "/",
   asyncHandler(async (req, res) => {
-    const { title, description, fileId, template = "xiyi-download" } = req.body;
+    const {
+      title,
+      description,
+      content,
+      fileId,
+      template = "xiyi-download",
+    } = req.body;
 
     if (!title) {
       return res.status(400).json({
@@ -63,6 +69,7 @@ router.post(
       data: {
         title,
         description: description || "",
+        content: content || "",
         slug,
         template,
         userId: req.user.id,
@@ -92,7 +99,7 @@ router.put(
   "/:id",
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const { title, description, fileId, settings, images } = req.body;
+    const { title, description, content, fileId, settings, images } = req.body;
 
     const page = await prisma.page.findUnique({
       where: { id: parseInt(id) },
@@ -117,6 +124,7 @@ router.put(
       data: {
         title: title || page.title,
         description: description || page.description,
+        content: content !== undefined ? content : page.content,
         fileId:
           fileId !== undefined
             ? fileId
