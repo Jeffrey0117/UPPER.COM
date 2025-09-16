@@ -7,22 +7,129 @@ import { logger } from "../utils/logger.js";
 
 const router = express.Router();
 
-// Demo download endpoint for testing
+// 輔助函數：處理頁面圖片數據
+function processPageImages(page, fileInfo) {
+  let images = [];
+
+  // 優先使用頁面圖片
+  if (page.images) {
+    try {
+      images = JSON.parse(page.images);
+    } catch (error) {
+      console.log("解析頁面圖片失敗:", error);
+    }
+  }
+
+  // 如果沒有頁面圖片且有檔案資訊，創建檔案類型圖示
+  if (images.length === 0 && fileInfo) {
+    let fileExtension =
+      fileInfo.name?.split(".").pop()?.toLowerCase() || "file";
+    images = [`css-file-icon:${fileExtension}`];
+  }
+
+  // 如果仍然沒有圖片，使用通用檔案圖示
+  if (images.length === 0) {
+    images = [`css-file-icon:file`];
+  }
+
+  return images;
+}
+
+// 輔助函數：生成檔案類型展示HTML
+function generateFileIconHtml(images) {
+  if (!images || images.length === 0) {
+    return `<div class="image-gallery">
+             <div class="main-image-container" style="display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+               <span>產品封面</span>
+             </div>
+           </div>`;
+  }
+
+  if (images.length === 1) {
+    const image = images[0];
+    if (image.startsWith("css-file-icon:")) {
+      const fileType = image.replace("css-file-icon:", "");
+      return `<div class="image-gallery">
+               <div class="main-image-container file-icon-container">
+                 <div class="file-icon file-icon-${fileType}">
+                   <div class="file-icon-extension">.${fileType.toUpperCase()}</div>
+                 </div>
+               </div>
+             </div>`;
+    } else {
+      return `<div class="image-gallery">
+               <div class="main-image-container">
+                 <img src="${image}" alt="產品圖片" class="main-image">
+               </div>
+             </div>`;
+    }
+  }
+
+  // 多圖片情況
+  return `<div class="image-gallery">
+           <div class="main-image-container">
+             ${
+               images[0].startsWith("css-file-icon:")
+                 ? `<div class="file-icon file-icon-${images[0].replace(
+                     "css-file-icon:",
+                     ""
+                   )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                   <div class="file-icon-extension">.${images[0]
+                     .replace("css-file-icon:", "")
+                     .toUpperCase()}</div>
+                 </div>`
+                 : `<img src="${images[0]}" alt="產品圖片 1" class="main-image" id="mainImage">`
+             }
+           </div>
+
+           <div class="thumbnail-container">
+             <button class="thumbnail-nav prev" onclick="scrollThumbnails(-1)" id="prevBtn">‹</button>
+
+             <div class="thumbnail-wrapper">
+               <div class="thumbnail-track" id="thumbnailTrack">
+                 ${images
+                   .map(
+                     (img, index) =>
+                       `<div class="thumbnail ${
+                         index === 0 ? "active" : ""
+                       }" onclick="changeMainImage(${index})">
+                     ${
+                       img.startsWith("css-file-icon:")
+                         ? `<div class="file-icon file-icon-${img.replace(
+                             "css-file-icon:",
+                             ""
+                           )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                           .${img.replace("css-file-icon:", "").toUpperCase()}
+                         </div>`
+                         : `<img src="${img}" alt="縮圖 ${index + 1}">`
+                     }
+                   </div>`
+                   )
+                   .join("")}
+               </div>
+             </div>
+
+             <button class="thumbnail-nav next" onclick="scrollThumbnails(1)" id="nextBtn">›</button>
+           </div>
+         </div>`;
+}
+
+// 演示下載端點 - 用於測試下載功能
 router.get(
   "/demo-download/:slug",
   asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
-    logger.info(`Demo download triggered for slug: ${slug}`);
+    logger.info(`演示下載被觸發，slug: ${slug}`);
 
-    // Create a simple demo file response
+    // 生成演示下載內容
     const demoContent = `演示下載 - ${slug}
 
 這是一個演示下載文件。
 在實際使用中，這裡會是您上傳的真實文件。
 
 請在管理後台：
-1. 建立頁面 
+1. 建立頁面
 2. 上傳文件
 3. 設定頁面與文件的關聯
 
@@ -41,13 +148,13 @@ router.get(
   })
 );
 
-// Direct file download endpoint
+// 檔案直接下載端點
 router.get(
   "/download/:slug",
   asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
-    // Find file by download slug
+    // 根據下載 slug 查找檔案
     const file = await prisma.file.findUnique({
       where: {
         downloadSlug: slug,
@@ -140,10 +247,10 @@ router.get(
     const filePath = path.join("./uploads", file.storageKey);
 
     try {
-      // Check if file exists
+      // 檢查檔案是否存在
       await fs.access(filePath);
 
-      // Get client IP for tracking unique downloads
+      // 獲取客戶端 IP 用於追蹤唯一下載
       const clientIp = req.ip || req.connection.remoteAddress || "unknown";
 
       // Check if this IP has downloaded this file today
@@ -360,30 +467,8 @@ router.get(
         pageToRender = page;
         fileInfo = page.file;
 
-        // Get images from page data
-        if (page.images) {
-          try {
-            images = JSON.parse(page.images);
-          } catch (error) {
-            console.log("Error parsing page images:", error);
-          }
-        }
-
-        // If no page images, create file type icon based on file extension
-        if (images.length === 0) {
-          let fileExtension = "file";
-
-          if (page.file && page.file.name) {
-            // 如果頁面有關聯的檔案，使用檔案副檔名
-            fileExtension =
-              page.file.name.split(".").pop()?.toLowerCase() || "file";
-          } else {
-            // 如果沒有關聯檔案，設為通用檔案圖示
-            fileExtension = "file";
-          }
-
-          images = [`css-file-icon:${fileExtension}`];
-        }
+        // 使用輔助函數處理圖片數據
+        images = processPageImages(page, page.file);
       }
 
       res.send(`<!DOCTYPE html>
@@ -421,8 +506,41 @@ router.get(
     .nav-links a { color: #6b7280; text-decoration: none; transition: color 0.3s ease; }
     .nav-links a:hover { color: #3b82f6; }
     
-    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+      margin-bottom: 40px;
+    }
     .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(203, 213, 225, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    /* 右側卡片容器 - 靜態布局 */
+    .right-cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 資訊卡片樣式 */
+    .info-card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(203, 213, 225, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    /* 下載卡片樣式 */
+    .download-card {
       background: rgba(255, 255, 255, 0.9);
       border-radius: 12px;
       padding: 30px;
@@ -676,20 +794,31 @@ router.get(
     @media (max-width: 768px) {
       .main-grid { grid-template-columns: 1fr; }
       .main-image-container { height: 300px; }
-      
+
       .file-icon {
         width: 200px;
         height: 250px;
       }
-      
+
       .file-icon-extension {
         font-size: 32px;
       }
-      
+
       .image-gallery {
         width: 100%;
         max-width: 500px;
         margin: 0 auto 20px auto;
+      }
+
+      /* 手機端保持靜態布局 */
+      @media (max-width: 768px) {
+        .right-cards-container {
+          gap: 16px;
+        }
+  
+        .info-card, .download-card {
+          padding: 24px;
+        }
       }
     }
     /* 功能按鈕區域 */
@@ -764,6 +893,34 @@ router.get(
       background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
+    /* 輪播導航按鈕樣式增強 */
+    .carousel-nav-btn:hover {
+      background: rgba(0,0,0,0.8) !important;
+      transform: scale(1.1);
+    }
+    
+    .carousel-nav-btn:disabled {
+      opacity: 0.3 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+    
+    /* 產品卡片懸停效果增強 */
+    .product-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+      border-color: #3b82f6 !important;
+    }
+    
+    /* 輪播指示器樣式增強 */
+    .carousel-dot:hover {
+      transform: scale(1.2);
+    }
+    
+    .carousel-dot.active {
+      transform: scale(1.2);
+    }
+
     @media (max-width: 768px) {
       .main-grid { grid-template-columns: 1fr; }
       .main-image-container { height: 300px; }
@@ -786,6 +943,21 @@ router.get(
       .action-buttons-top {
         grid-template-columns: 1fr;
         gap: 8px;
+      }
+      
+      /* 輪播手機端優化 */
+      .carousel-container {
+        gap: 12px !important;
+      }
+      
+      .product-card {
+        min-width: 200px !important;
+      }
+      
+      .carousel-nav-btn {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
       }
     }
   </style>
@@ -956,10 +1128,10 @@ router.get(
         </div>
       </div>
       
-      <!-- 右側卡片 - 包含標題資訊和免費下載 -->
-      <div class="card" style="padding: 0; display: flex; flex-direction: column; height: fit-content;">
-        <!-- 上方區域 - 主要內容資訊 -->
-        <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px 12px 0 0; padding: 24px; border-bottom: 1px solid rgba(203, 213, 225, 0.3);">
+      <!-- 右側卡片容器 -->
+      <div class="right-cards-container">
+        <!-- 資訊卡片 -->
+        <div class="info-card">
           <h1 style="font-size: 24px; margin-bottom: 10px; color: #1f2937;">${
             pageToRender.title
           }</h1>
@@ -969,7 +1141,7 @@ router.get(
           <div style="color: #4b5563; margin-bottom: 16px; line-height: 1.6;">
             ${pageToRender.description || "免費下載資源，立即獲取實用內容。"}
           </div>
-          
+
           ${
             fileInfo
               ? `<ul style="list-style: disc; padding-left: 20px; margin-bottom: 0; color: #4b5563;">
@@ -981,8 +1153,8 @@ router.get(
           }
         </div>
 
-        <!-- 下方區域 - 免費下載區塊 (移到右邊) -->
-        <div style="background: rgba(255, 255, 255, 0.8); border-radius: 0 0 12px 12px; padding: 24px;">
+        <!-- 下載卡片 -->
+        <div class="download-card">
           <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
           <form onsubmit="handleDownload(event)">
             <div style="margin-bottom: 12px;">
@@ -1000,11 +1172,11 @@ router.get(
     </div>
 
     
-    <!-- 作者資訊Banner區域 (移至內容簡介區域之前) -->
+    <!-- 作者資訊Banner區域 -->
     ${(() => {
       if (pageToRender.user) {
         return `
-          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px; transition: transform 0.3s ease; cursor: pointer;" onclick="goToUserProfile()">
+          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px; transition: transform 0.3s ease; cursor: pointer;" onclick="goToUserProfile()">
             <!-- 頭像區域 -->
             <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3);">
               ${pageToRender.user.name.charAt(0).toUpperCase()}
@@ -1043,7 +1215,7 @@ router.get(
         `;
       } else {
         return `
-          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
+          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
             <!-- 默認頭像 -->
             <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6b7280, #4b5563); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3);">
               西
@@ -1072,6 +1244,92 @@ router.get(
         `;
       }
     })()}
+
+    
+    <!-- 類似產品區域 -->
+    <div style="background: rgba(255, 255, 255, 0.9); border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.6); backdrop-filter: blur(10px);">
+      <h3 style="font-size: 20px; font-weight: 600; color: #1f2937; margin: 0 0 24px 0; display: flex; align-items: center; gap: 8px;">
+        <span>⭐</span>
+        類似產品
+      </h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+          ${(() => {
+            // 只顯示前4個產品 - 模擬推薦產品數據
+            const recommendedProducts = [
+              {
+                id: 1,
+                title: "AI 自動化工作流程指南",
+                description:
+                  "學習如何使用 AI 工具優化日常工作流程，提升工作效率 300%",
+                downloads: 1250,
+                rating: 4.9,
+                slug: "ai-automation-guide",
+              },
+              {
+                id: 2,
+                title: "Python 數據分析實戰教程",
+                description:
+                  "從零開始學習 Python 數據分析，包含 Pandas、NumPy、Matplotlib 實戰案例",
+                downloads: 890,
+                rating: 4.8,
+                slug: "python-data-analysis",
+              },
+              {
+                id: 3,
+                title: "UI/UX 設計系統完整指南",
+                description:
+                  "建立統一的設計系統，提升產品設計一致性和用戶體驗品質",
+                downloads: 675,
+                rating: 4.7,
+                slug: "ui-ux-design-system",
+              },
+              {
+                id: 4,
+                title: "區塊鏈技術應用實戰",
+                description:
+                  "深入淺出學習區塊鏈技術，從基礎概念到實際應用項目開發",
+                downloads: 542,
+                rating: 4.6,
+                slug: "blockchain-applications",
+              },
+            ];
+
+            return recommendedProducts
+              .map(
+                (product) => `
+              <div class="product-card" onclick="window.open('/download-page/${
+                product.slug
+              }', '_blank')" style="background: rgba(248, 250, 252, 0.8); border-radius: 8px; padding: 14px; border: 1px solid rgba(203, 213, 225, 0.4); cursor: pointer; transition: all 0.3s ease;">
+                <div style="width: 100%; height: 120px; border-radius: 6px; overflow: hidden; margin-bottom: 10px; background: linear-gradient(135deg, #f3f4f6, #e5e7eb); display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 50px; height: 50px; border-radius: 6px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 16px;">
+                    ${product.title.charAt(0)}
+                  </div>
+                </div>
+                <h4 style="font-size: 13px; font-weight: 600; color: #1f2937; margin: 0 0 6px 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${
+                  product.title
+                }</h4>
+                <p style="font-size: 11px; color: #6b7280; margin: 0 0 10px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${
+                  product.description
+                }</p>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center; gap: 3px;">
+                    <span style="color: #fbbf24; font-size: 11px;">⭐</span>
+                    <span style="font-size: 11px; color: #4b5563; font-weight: 500;">${
+                      product.rating
+                    }</span>
+                  </div>
+                  <div style="font-size: 11px; color: #6b7280;">
+                    ${product.downloads} 下載
+                  </div>
+                </div>
+              </div>
+            `
+              )
+              .join("");
+          })()}
+        </div>
+    </div>
 
     <!-- 內容簡介與會員評價 - 網格外單獨的完整寬度區域 -->
     <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 30px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px);\">
@@ -1708,11 +1966,12 @@ router.get(
       );
     }
     
-    // 頁面載入時初始化收藏狀態
+    // 頁面載入時初始化
     document.addEventListener('DOMContentLoaded', function() {
       initializeGallery();
       initializeFavorite();
     });
+    
   </script>
 
 </body>
