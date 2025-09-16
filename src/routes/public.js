@@ -1155,7 +1155,7 @@ router.get(
 
         <!-- 下載卡片 -->
         <div class="download-card">
-          <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; text-align: center;">免費下載</h5>
+          <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
           <form onsubmit="handleDownload(event)">
             <div style="margin-bottom: 12px;">
               <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 *</label>
@@ -1165,7 +1165,7 @@ router.get(
               <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">電子郵件 *</label>
               <input type="email" name="email" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;">
             </div>
-            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);">立即下載</button>
+            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);">立即下載</button>
           </form>
         </div>
       </div>
@@ -1335,7 +1335,7 @@ router.get(
     <div style=\"background: rgba(255, 255, 255, 0.6); border-radius: 12px; padding: 30px; margin-top: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px);\">
       <!-- 內容簡介 -->
       <div style=\"margin-bottom: 40px;\">
-        <h4 style=\"background: #F2F2F2; padding: 16px 24px; margin: -8px -8px 20px -8px; border-radius: 8px; font-size: 24px; font-weight: 600; color: #1f2937; border-left: 4px solid #3b82f6;\">📖 內容簡介</h4>
+        <h4 style=\"background: #F2F2F2; padding: 16px 24px; margin: -8px -8px 20px -8px; border-radius: 8px; font-size: 24px; font-weight: 600; color: #1f2937; border-left: 4px solid #3b82f6; text-align: center;\">📖 內容簡介</h4>
         <div style=\"color: #4b5563; line-height: 1.7; font-size: 15px; margin-bottom: 25px;\">
            ${
              // 優先檢查頁面的 content 字段
