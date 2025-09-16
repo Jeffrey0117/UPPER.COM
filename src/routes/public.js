@@ -1209,9 +1209,34 @@ router.get(
         </div>
 
         <!-- 下載卡片 -->
-        <div class="download-card">
+        <div class="download-card" id="downloadCard">
           <h5 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
-          <form onsubmit="handleDownload(event)">
+          
+          <!-- 登入提示區塊 (初始顯示) -->
+          <div id="loginPrompt" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(29, 78, 216, 0.05) 100%); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(59, 130, 246, 0.2);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                🔐
+              </div>
+              <div style="flex: 1;">
+                <h6 style="font-size: 15px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;">會員快速下載</h6>
+                <p style="font-size: 13px; color: #6b7280; margin: 0;">登入後免填表單，一鍵下載</p>
+              </div>
+            </div>
+            <button onclick="goToLogin()" style="width: 100%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <span>👤</span>
+              登入帳號
+            </button>
+          </div>
+          
+          <!-- 分隔線 -->
+          <div id="divider" style="text-align: center; margin: 20px 0; color: #9ca3af; font-size: 14px; position: relative;">
+            <span style="background: rgba(255, 255, 255, 0.9); padding: 0 16px; position: relative; z-index: 1;">或訪客下載</span>
+            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e5e7eb; z-index: 0;"></div>
+          </div>
+          
+          <!-- 訪客表單 (初始顯示) -->
+          <form id="guestForm" onsubmit="handleDownload(event)">
             <div style="margin-bottom: 12px;">
               <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 <span style="color: #ef4444;">*</span></label>
               <input type="text" name="name" required style="width: 100%; padding: 14px 16px; border: none; border-radius: 6px; background: #EDEFF2; color: #1f2937; font-size: 14px;">
@@ -1222,13 +1247,47 @@ router.get(
             </div>
             <button type="submit" class="download-btn" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 14px 26px; border-radius: 8px; cursor: pointer; font-size: 17px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; animation: pulse-shadow 2s infinite;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: icon-bounce 2s infinite;">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <path d="M21 15v4a2 2 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="17,8 12,3 7,8"/>
                 <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
               立即下載
             </button>
           </form>
+          
+          <!-- 會員快速下載區域 (初始隱藏) -->
+          <div id="memberSection" style="display: none;">
+            <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(16, 185, 129, 0.2);">
+              <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #1d4ed8); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px;" id="userAvatar">
+                  U
+                </div>
+                <div style="flex: 1;">
+                  <h6 style="font-size: 16px; font-weight: 600; color: #1f2937; margin: 0 0 4px 0;">歡迎回來，<span id="userName">用戶</span>！</h6>
+                  <p style="font-size: 14px; color: #6b7280; margin: 0;">您可以直接下載此檔案</p>
+                </div>
+              </div>
+              
+              <button onclick="quickDownload()" style="width: 100%; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: none; padding: 14px 26px; border-radius: 8px; font-size: 17px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17,8 12,3 7,8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                立即下載
+              </button>
+              
+              <div style="display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(16, 185, 129, 0.1); color: #10b981; font-size: 13px;">
+                <span>✅ 免填表單</span>
+                <span>✅ 下載記錄保存</span>
+                <span>✅ 專屬會員內容</span>
+              </div>
+            </div>
+            
+            <button onclick="logoutAndShowForm()" style="width: 100%; background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #e5e7eb; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+              改用訪客下載
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2043,7 +2102,145 @@ ${(() => {
     document.addEventListener('DOMContentLoaded', function() {
       initializeGallery();
       initializeFavorite();
+      checkAuthStatus(); // 檢查登入狀態
     });
+    
+    // 檢查登入狀態
+    async function checkAuthStatus() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        // 未登入，顯示預設的訪客模式
+        showGuestMode();
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/auth/me', {
+          headers: {
+            'Authorization': 'Bearer ' + token
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            // 已登入，顯示會員快速下載
+            showMemberMode(data.user);
+          } else {
+            // Token 無效，顯示訪客模式
+            showGuestMode();
+          }
+        } else {
+          // 驗證失敗，清除 token 並顯示訪客模式
+          localStorage.removeItem('authToken');
+          showGuestMode();
+        }
+      } catch (error) {
+        console.error('驗證登入狀態失敗:', error);
+        showGuestMode();
+      }
+    }
+    
+    // 顯示訪客模式
+    function showGuestMode() {
+      const loginPrompt = document.getElementById('loginPrompt');
+      const divider = document.getElementById('divider');
+      const guestForm = document.getElementById('guestForm');
+      const memberSection = document.getElementById('memberSection');
+      
+      if (loginPrompt) loginPrompt.style.display = 'block';
+      if (divider) divider.style.display = 'block';
+      if (guestForm) guestForm.style.display = 'block';
+      if (memberSection) memberSection.style.display = 'none';
+    }
+    
+    // 顯示會員模式
+    function showMemberMode(user) {
+      const loginPrompt = document.getElementById('loginPrompt');
+      const divider = document.getElementById('divider');
+      const guestForm = document.getElementById('guestForm');
+      const memberSection = document.getElementById('memberSection');
+      const userName = document.getElementById('userName');
+      const userAvatar = document.getElementById('userAvatar');
+      
+      if (loginPrompt) loginPrompt.style.display = 'none';
+      if (divider) divider.style.display = 'none';
+      if (guestForm) guestForm.style.display = 'none';
+      if (memberSection) memberSection.style.display = 'block';
+      
+      // 更新用戶資訊
+      if (userName) userName.textContent = user.name || user.email.split('@')[0];
+      if (userAvatar) {
+        const firstChar = (user.name || user.email)[0].toUpperCase();
+        userAvatar.textContent = firstChar;
+      }
+    }
+    
+    // 前往登入頁面
+    function goToLogin() {
+      // 保存當前頁面 URL 以便登入後返回
+      sessionStorage.setItem('returnUrl', window.location.href);
+      window.location.href = '/admin.html';
+    }
+    
+    // 快速下載功能（已登入用戶）
+    async function quickDownload() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        goToLogin();
+        return;
+      }
+      
+      try {
+        const response = await fetch('/download-page/' + '${
+          pageToRender.slug
+        }' + '/quick', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+          // 開始下載
+          const downloadLink = document.createElement('a');
+          downloadLink.href = result.downloadUrl;
+          downloadLink.download = '';
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          
+          // 顯示成功提示
+          showModal(
+            '下載成功',
+            '<div style="text-align: center; margin: 16px 0;">' +
+              '<div style="font-size: 48px; margin-bottom: 16px;">✅</div>' +
+              '<p style="color: #4b5563;">' +
+                '檔案下載已開始，請查看您的下載資料夾。' +
+              '</p>' +
+            '</div>',
+            [
+              {
+                text: '確定',
+                primary: true,
+                onClick: () => {}
+              }
+            ]
+          );
+        } else {
+          alert('下載失敗：' + result.message);
+        }
+      } catch (error) {
+        alert('發生錯誤，請稍後再試');
+      }
+    }
+    
+    // 切換回訪客模式
+    function logoutAndShowForm() {
+      showGuestMode();
+    }
     
   </script>
 
