@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>測試 Quill 編輯器</title>
+
+    <!-- Quill CSS -->
+    <link
+      href="https://cdn.quilljs.com/1.3.6/quill.snow.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        margin-bottom: 30px;
+      }
+      .editor-wrapper {
+        margin-bottom: 30px;
+      }
+      .editor-label {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #555;
+      }
+      #editor {
+        height: 200px;
+        background: white;
+      }
+      .output {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+      }
+      .output h3 {
+        margin-top: 0;
+        color: #666;
+      }
+      #output-content {
+        background: white;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 10px;
+        min-height: 100px;
+        border: 1px solid #ddd;
+      }
+      .btn {
+        padding: 10px 20px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .btn:hover {
+        background: #2563eb;
+      }
+      .status {
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Quill 編輯器測試頁面</h1>
+
+      <div id="status" class="status" style="display: none"></div>
+
+      <div class="editor-wrapper">
+        <div class="editor-label">請在下方輸入內容測試格式功能：</div>
+        <div id="editor"></div>
+      </div>
+
+      <button class="btn" onclick="getContent()">獲取內容</button>
+
+      <div class="output">
+        <h3>HTML 輸出內容：</h3>
+        <pre
+          id="html-output"
+          style="
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+          "
+        ></pre>
+
+        <h3>預覽效果：</h3>
+        <div id="output-content"></div>
+      </div>
+    </div>
+
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <script>
+      let quill;
+      const statusEl = document.getElementById("status");
+
+      // 顯示狀態訊息
+      function showStatus(message, type) {
+        statusEl.textContent = message;
+        statusEl.className = "status " + type;
+        statusEl.style.display = "block";
+      }
+
+      // 初始化 Quill
+      function initializeQuill() {
+        try {
+          if (typeof Quill === "undefined") {
+            showStatus("錯誤：Quill 未載入", "error");
+            return;
+          }
+
+          quill = new Quill("#editor", {
+            theme: "snow",
+            placeholder: "輸入一些文字，試試粗體、斜體、列表等功能...",
+            modules: {
+              toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ["bold", "italic", "underline", "strike"],
+                ["blockquote", "code-block"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                [{ script: "sub" }, { script: "super" }],
+                [{ color: [] }, { background: [] }],
+                ["link", "image"],
+                ["clean"],
+              ],
+            },
+          });
+
+          // 加入一些預設內容
+          quill.setContents([
+            { insert: "歡迎使用 Quill 編輯器！\n", attributes: { header: 1 } },
+            { insert: "\n這是一個" },
+            { insert: "富文本編輯器", attributes: { bold: true } },
+            { insert: "的測試頁面。\n\n" },
+            { insert: "您可以測試以下功能：\n" },
+            { insert: "粗體文字", attributes: { bold: true } },
+            { insert: "、" },
+            { insert: "斜體文字", attributes: { italic: true } },
+            { insert: "、" },
+            { insert: "底線文字", attributes: { underline: true } },
+            { insert: "\n" },
+            { insert: "有序列表項目 1\n", attributes: { list: "ordered" } },
+            { insert: "有序列表項目 2\n", attributes: { list: "ordered" } },
+            { insert: "無序列表項目 A\n", attributes: { list: "bullet" } },
+            { insert: "無序列表項目 B\n", attributes: { list: "bullet" } },
+          ]);
+
+          showStatus("Quill 編輯器已成功載入！", "success");
+
+          // 即時更新預覽
+          quill.on("text-change", function () {
+            updatePreview();
+          });
+
+          // 初始預覽
+          updatePreview();
+        } catch (error) {
+          showStatus("初始化錯誤：" + error.message, "error");
+          console.error("Quill initialization error:", error);
+        }
+      }
+
+      // 獲取內容
+      function getContent() {
+        if (quill) {
+          const html = quill.root.innerHTML;
+          document.getElementById("html-output").textContent = html;
+          document.getElementById("output-content").innerHTML = html;
+        }
+      }
+
+      // 更新預覽
+      function updatePreview() {
+        if (quill) {
+          const html = quill.root.innerHTML;
+          document.getElementById("html-output").textContent = html;
+          document.getElementById("output-content").innerHTML = html;
+        }
+      }
+
+      // 頁面載入時初始化
+      window.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM loaded, checking Quill...");
+
+        if (typeof Quill !== "undefined") {
+          console.log("Quill is available");
+          initializeQuill();
+        } else {
+          console.log("Quill not found, loading...");
+          // 如果 Quill 沒有載入，等待一下再試
+          setTimeout(function () {
+            if (typeof Quill !== "undefined") {
+              initializeQuill();
+            } else {
+              showStatus("無法載入 Quill 編輯器", "error");
+            }
+          }, 1000);
+        }
+      });
+    </script>
+  </body>
+</html>
