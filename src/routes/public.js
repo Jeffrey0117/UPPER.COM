@@ -792,6 +792,38 @@ router.get(
       background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
     }
 
+    /* 下載按鈕動畫效果 */
+    @keyframes pulse-shadow {
+      0%, 100% {
+        box-shadow:
+          0 4px 15px rgba(16, 185, 129, 0.4),
+          0 0 0 0 rgba(16, 185, 129, 0.4);
+      }
+      50% {
+        box-shadow:
+          0 4px 15px rgba(16, 185, 129, 0.4),
+          0 0 0 8px rgba(16, 185, 129, 0);
+      }
+    }
+
+    @keyframes icon-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(2px); }
+    }
+
+    .download-btn:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+      transform: translateY(-2px);
+      box-shadow:
+        0 6px 20px rgba(16, 185, 129, 0.6),
+        0 0 0 10px rgba(16, 185, 129, 0.1) !important;
+      animation: none !important;
+    }
+
+    .download-btn:hover svg {
+      animation: icon-bounce 0.6s ease-in-out !important;
+    }
+
     @media (max-width: 768px) {
       .main-grid { grid-template-columns: 1fr; }
       .main-image-container { height: 300px; }
@@ -816,29 +848,44 @@ router.get(
         .right-cards-container {
           gap: 16px;
         }
-  
+
         .info-card, .download-card {
           padding: 24px;
         }
+      }
+
+      /* 作者資訊區域手機端樣式 */
+      .author-info-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .author-avatar {
+        width: 80px !important;
+        height: 80px !important;
+      }
+
+      .author-info-section {
+        width: 100% !important;
+      }
+
+      .author-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .author-buttons button {
+        width: 100% !important;
+        padding: 12px !important;
       }
     }
     /* 功能按鈕區域 */
     .action-buttons {
       margin-top: 16px;
-      display: grid;
-      grid-template-rows: auto auto;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
-    }
-    
-    .action-buttons-top {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    
-    .action-buttons-bottom {
-      display: grid;
-      grid-template-columns: 1fr;
     }
     
     .action-btn {
@@ -864,30 +911,30 @@ router.get(
     }
     
     .btn-share {
-      background: #3b82f6;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      background: #3C83F6;
+      box-shadow: 0 4px 15px rgba(60, 131, 246, 0.4);
     }
-    
+
     .btn-share:hover {
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+      box-shadow: 0 6px 20px rgba(60, 131, 246, 0.6);
     }
     
     .btn-preview {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+      background: #16A249;
+      box-shadow: 0 4px 15px rgba(22, 162, 73, 0.4);
     }
-    
+
     .btn-preview:hover {
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6);
+      box-shadow: 0 6px 20px rgba(22, 162, 73, 0.6);
     }
     
     .btn-favorite {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      background: #EF4343;
+      box-shadow: 0 4px 15px rgba(239, 67, 67, 0.4);
     }
-    
+
     .btn-favorite:hover {
-      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+      box-shadow: 0 6px 20px rgba(239, 67, 67, 0.6);
     }
     
     .btn-favorite.favorited {
@@ -1110,22 +1157,29 @@ router.get(
         
         <!-- 功能按鈕區域 -->
         <div class="action-buttons">
-          <div class="action-buttons-top">
-            <button class="action-btn btn-preview" onclick="previewContent()" id="previewBtn">
-              <span>👁️</span>
-              線上閱讀
-            </button>
-            <button class="action-btn btn-favorite" onclick="toggleFavorite()" id="favoriteBtn">
-              <span id="favoriteIcon">❤️</span>
-              收藏
-            </button>
-          </div>
-          <div class="action-buttons-bottom">
-            <button class="action-btn btn-share" onclick="shareContent()" id="shareBtn">
-              <span>🔗</span>
-              分享連結
-            </button>
-          </div>
+          <button class="action-btn btn-preview" onclick="previewContent()" id="previewBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            線上閱讀
+          </button>
+          <button class="action-btn btn-favorite" onclick="toggleFavorite()" id="favoriteBtn">
+            <svg id="favoriteIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            收藏
+          </button>
+          <button class="action-btn btn-share" onclick="shareContent()" id="shareBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/>
+              <circle cx="6" cy="12" r="3"/>
+              <circle cx="18" cy="19" r="3"/>
+              <path d="m8.59 13.51 6.83 3.98"/>
+              <path d="m15.41 6.51-6.82 3.98"/>
+            </svg>
+            分享連結
+          </button>
         </div>
       </div>
       
@@ -1137,7 +1191,7 @@ router.get(
             pageToRender.title
           }</h1>
           <div style="color: #6b7280; margin-bottom: 16px;">
-            ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
+            ⭐⭐⭐⭐⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
           </div>
           <div style="color: #4b5563; margin-bottom: 16px; line-height: 1.6;">
             ${pageToRender.description || "免費下載資源，立即獲取實用內容。"}
@@ -1156,17 +1210,24 @@ router.get(
 
         <!-- 下載卡片 -->
         <div class="download-card">
-          <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
+          <h5 style="font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
           <form onsubmit="handleDownload(event)">
             <div style="margin-bottom: 12px;">
-              <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 *</label>
-              <input type="text" name="name" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(243, 244, 246, 0.9); color: #1f2937; font-size: 14px;">
+              <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 <span style="color: #ef4444;">*</span></label>
+              <input type="text" name="name" required style="width: 100%; padding: 14px 16px; border: none; border-radius: 6px; background: #EDEFF2; color: #1f2937; font-size: 14px;">
             </div>
             <div style="margin-bottom: 16px;">
-              <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">電子郵件 *</label>
-              <input type="email" name="email" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(243, 244, 246, 0.9); color: #1f2937; font-size: 14px;">
+              <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">電子郵件 <span style="color: #ef4444;">*</span></label>
+              <input type="email" name="email" required style="width: 100%; padding: 14px 16px; border: none; border-radius: 6px; background: #EDEFF2; color: #1f2937; font-size: 14px;">
             </div>
-            <button type="submit" style="background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);">立即下載</button>
+            <button type="submit" class="download-btn" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; border: 2px solid rgba(255, 255, 255, 0.3); padding: 14px 26px; border-radius: 8px; cursor: pointer; font-size: 17px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; animation: pulse-shadow 2s infinite;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: icon-bounce 2s infinite;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              立即下載
+            </button>
           </form>
         </div>
       </div>
@@ -1174,48 +1235,53 @@ router.get(
 
     
     <!-- 作者資訊Banner區域 -->
-    ${(() => {
-      if (pageToRender.user) {
-        return `
-          <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px; transition: transform 0.3s ease; cursor: pointer;" onclick="goToUserProfile()">
-            <!-- 頭像區域 -->
-            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3);">
-              ${pageToRender.user.name.charAt(0).toUpperCase()}
-            </div>
+${(() => {
+  if (pageToRender.user) {
+    return `
+  <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
+    <!-- 頭像區域 -->
+    <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3); cursor: pointer;" onclick="goToUserProfile()">
+      ${pageToRender.user.name.charAt(0).toUpperCase()}
+    </div>
 
-            <!-- 作者資訊區域 -->
-            <div style="flex: 1;">
-              <h5 style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 0 0 8px 0;">作者：${
-                pageToRender.user.name
-              }</h5>
-              <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.5;">
-                ${
-                  pageToRender.user.bio ||
-                  "專業的內容創作者，致力於分享高品質的資源與知識。"
-                }
-              </p>
+    <!-- 作者資訊區域 -->
+    <div style="flex: 1;">
+      <h5 style="font-size: 18px; font-weight: 600; color: #1f2937; margin: 0 0 8px 0; cursor: pointer;" onclick="goToUserProfile()">作者：${
+        pageToRender.user.name
+      }</h5>
+      <p style="color: #6b7280; margin: 0; font-size: 14px; line-height: 1.5;">
+        ${
+          pageToRender.user.bio ||
+          "專業的內容創作者，致力於分享高品質的資源與知識。"
+        }
+      </p>
 
-              <!-- 統計資訊 -->
-              <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
-                <span style="color: #9ca3af; font-size: 13px;">
-                  ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
-                </span>
-                <span style="color: #9ca3af; font-size: 13px;">
-                  📅 ${new Date(pageToRender.createdAt).toLocaleDateString(
-                    "zh-TW"
-                  )}
-                </span>
-              </div>
-            </div>
+      <!-- 統計資訊 -->
+      <div style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
+        <span style="color: #9ca3af; font-size: 13px;">
+          ⭐ 5.0 • ${fileInfo ? fileInfo.downloads : 0} 次下載
+        </span>
+        <span style="color: #9ca3af; font-size: 13px;">
+          📅 ${new Date(pageToRender.createdAt).toLocaleDateString("zh-TW")}
+        </span>
+      </div>
 
-            <!-- 箭頭圖示 -->
-            <div style="color: #9ca3af; font-size: 20px; flex-shrink: 0;">
-              →
-            </div>
-          </div>
-        `;
-      } else {
-        return `
+      <!-- 按鈕區域 -->
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
+        <button onclick="goToUserProfile()" style="background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); display: flex; align-items: center; gap: 8px;">
+          <span>👁️</span>
+          查看他的檔案
+        </button>
+        <button onclick="toggleFollow()" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #d1d5db; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">
+          <span id="followIcon">👤</span>
+          <span id="followText">追蹤</span>
+        </button>
+      </div>
+    </div>
+  </div>
+`;
+  } else {
+    return `
           <div style="background: rgba(255, 255, 255, 0.8); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid rgba(203, 213, 225, 0.4); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 20px;">
             <!-- 默認頭像 -->
             <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6b7280, #4b5563); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 24px; flex-shrink: 0; border: 3px solid rgba(255, 255, 255, 0.3);">
@@ -1243,8 +1309,8 @@ router.get(
             </div>
           </div>
         `;
-      }
-    })()}
+  }
+})()}
 
     
     <!-- 類似產品區域 -->
@@ -1367,7 +1433,7 @@ router.get(
 
       <!-- 會員評價 -->
       <div>
-        <h4 style=\"background: #F2F2F2; padding: 16px 24px; margin: -8px -8px 20px -8px; border-radius: 8px; font-size: 24px; font-weight: 600; color: #1f2937; border-left: 4px solid #f59e0b;\">⭐ 會員評價</h4>
+        <h4 style=\"background: #F2F2F2; padding: 16px 24px; margin: -8px -8px 20px -8px; border-radius: 8px; font-size: 24px; font-weight: 600; color: #1f2937; border-left: 4px solid #f59e0b; text-align: center;\">⭐ 會員評價</h4>
 
         <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;\">
           <!-- Review 1 -->
@@ -1584,24 +1650,30 @@ router.get(
     
     // Follow functionality
     let isFollowing = false;
-    
+
     function toggleFollow() {
+      const followIcon = document.getElementById('followIcon');
+      const followText = document.getElementById('followText');
       const followBtn = document.getElementById('followBtn');
-      const heartIcon = document.getElementById('heartIcon');
-      const followersCount = document.getElementById('followersCount');
-      
+
       isFollowing = !isFollowing;
-      
+
       if (isFollowing) {
         // Following state
-        heartIcon.innerHTML = '♥';
-        heartIcon.style.color = '#ef4444';
-        followersCount.innerHTML = '1.3K';
+        if (followIcon) followIcon.textContent = '✅';
+        if (followText) followText.textContent = '已追蹤';
+        if (followBtn) {
+          followBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+          followBtn.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+        }
       } else {
         // Not following state
-        heartIcon.innerHTML = '♡';
-        heartIcon.style.color = '#ef4444';
-        followersCount.innerHTML = '1.2K';
+        if (followIcon) followIcon.textContent = '👤';
+        if (followText) followText.textContent = '追蹤';
+        if (followBtn) {
+          followBtn.style.background = 'rgba(107, 114, 128, 0.1)';
+          followBtn.style.boxShadow = 'none';
+        }
       }
     }
 
