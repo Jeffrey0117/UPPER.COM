@@ -880,65 +880,231 @@ router.get(
         padding: 12px !important;
       }
     }
-    /* 功能按鈕區域 */
-    .action-buttons {
-      margin-top: 16px;
+    
+    /* 左側區域容器 */
+    .left-section {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 24px;
     }
-    
-    .action-btn {
-      padding: 12px 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
+
+    /* 圓形按鈕功能區域樣式 - 加入卡片背景 */
+    .action-buttons-circle {
+      margin-top: 20px;
+    }
+
+    /* 單一卡片版本 - 所有按鈕在同一張卡片內 */
+    .action-card-single {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(203, 213, 225, 0.6);
+      backdrop-filter: blur(10px);
+    }
+
+    /* 分離卡片版本 - 每個按鈕獨立卡片 */
+    .action-cards-separate {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .action-card-individual {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(203, 213, 225, 0.6);
+      backdrop-filter: blur(10px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
       transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .action-card-individual:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      border-color: #3b82f6;
+    }
+
+    /* 按鈕組容器 - 水平flex布局 */
+    .circle-btn-group {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 40px;
+    }
+
+    /* 單個按鈕項目容器 */
+    .circle-btn-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* 圓形按鈕基礎樣式 - 加大尺寸 */
+    .circle-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      color: white;
-      text-align: center;
-    }
-    
-    .action-btn:hover {
-      transform: translateY(-2px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
-    
-    .btn-share {
-      background: #3C83F6;
-      box-shadow: 0 4px 15px rgba(60, 131, 246, 0.4);
+
+    /* 按鈕圖標容器 - 加大圖標 */
+    .circle-btn .btn-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: transform 0.3s ease;
+      color: white;
     }
 
-    .btn-share:hover {
-      box-shadow: 0 6px 20px rgba(60, 131, 246, 0.6);
-    }
-    
-    .btn-preview {
-      background: #16A249;
-      box-shadow: 0 4px 15px rgba(22, 162, 73, 0.4);
+    .circle-btn .btn-icon svg {
+      width: 32px;
+      height: 32px;
     }
 
-    .btn-preview:hover {
-      box-shadow: 0 6px 20px rgba(22, 162, 73, 0.6);
+    /* 按鈕標籤 - 加大字體 */
+    .btn-label {
+      font-size: 15px;
+      color: #374151;
+      font-weight: 600;
+      text-align: center;
+      transition: color 0.3s ease;
     }
-    
+
+    /* 線上閱讀按鈕 */
+    .btn-read {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .btn-read:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+    }
+
+    /* 收藏按鈕 */
     .btn-favorite {
-      background: #EF4343;
-      box-shadow: 0 4px 15px rgba(239, 67, 67, 0.4);
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
     .btn-favorite:hover {
-      box-shadow: 0 6px 20px rgba(239, 67, 67, 0.6);
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
     }
-    
+
     .btn-favorite.favorited {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    /* 分享按鈕 */
+    .btn-share {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .btn-share:hover {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+    }
+
+    /* 按鈕懸停時的圖標動畫 */
+    .circle-btn:hover .btn-icon {
+      transform: scale(1.1);
+    }
+
+    /* 懸停時標籤顏色變化 */
+    .circle-btn-item:hover .btn-label {
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    /* 按鈕點擊波紋效果 */
+    .circle-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.5);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .circle-btn:active::before {
+      width: 120px;
+      height: 120px;
+    }
+
+    .circle-btn:active {
+      transform: translateY(-1px);
+    }
+
+    /* 載入狀態 */
+    .circle-btn.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .circle-btn.loading .btn-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* 波紋動畫 */
+    @keyframes rippleAnimation {
+      from {
+        transform: scale(0);
+        opacity: 1;
+      }
+      to {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+
+    /* 禁用狀態 */
+    .circle-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+      background: #e5e7eb !important;
+    }
+
+    /* 焦點狀態（無障礙性） */
+    .circle-btn:focus {
+      outline: none;
+      box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.1),
+        0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .circle-btn:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
     }
 
     /* 輪播導航按鈕樣式增強 */
@@ -988,9 +1154,65 @@ router.get(
         margin: 0 auto 20px auto;
       }
       
-      .action-buttons-top {
+      /* 圓形按鈕響應式調整 */
+      .circle-btn-group {
+        gap: 20px;
+      }
+      
+      .circle-btn {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .btn-label {
+        font-size: 14px;
+      }
+      
+      .circle-btn .btn-icon svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      /* 手機端分離卡片改為垂直排列 */
+      .action-cards-separate {
         grid-template-columns: 1fr;
-        gap: 8px;
+      }
+    }
+
+    /* 手機設備 - 圓形按鈕調整 */
+    @media (max-width: 480px) {
+      .circle-btn-group {
+        gap: 16px;
+      }
+      
+      .circle-btn {
+        width: 64px;
+        height: 64px;
+      }
+      
+      .btn-label {
+        font-size: 13px;
+      }
+      
+      .circle-btn .btn-icon svg {
+        width: 24px;
+        height: 24px;
+      }
+    }
+
+    /* 超小螢幕 - 圓形按鈕調整 */
+    @media (max-width: 320px) {
+      .circle-btn-group {
+        gap: 16px;
+      }
+      
+      .circle-btn {
+        width: 48px;
+        height: 48px;
+      }
+      
+      .btn-label {
+        font-size: 10px;
       }
       
       /* 輪播手機端優化 */
@@ -1074,113 +1296,178 @@ router.get(
 
 
     <div class="main-grid">
-      <div class="card">
-        ${
-          images && images.length > 0
-            ? images.length === 1
-              ? images[0].startsWith("css-file-icon:")
-                ? `<div class="image-gallery">
-                    <div class="main-image-container file-icon-container">
-                      <div class="file-icon file-icon-${images[0].replace(
-                        "css-file-icon:",
-                        ""
-                      )}">
-                        <div class="file-icon-extension">.${images[0]
-                          .replace("css-file-icon:", "")
-                          .toUpperCase()}</div>
-                      </div>
-                    </div>
-                  </div>`
-                : `<div class="image-gallery">
-                    <div class="main-image-container">
-                      <img src="${images[0]}" alt="${pageToRender.title}" class="main-image">
-                    </div>
-                  </div>`
-              : `<div class="image-gallery">
-                  <!-- 主要大圖區域 -->
-                  <div class="main-image-container">
-                    ${
-                      images[0].startsWith("css-file-icon:")
-                        ? `<div class="file-icon file-icon-${images[0].replace(
-                            "css-file-icon:",
-                            ""
-                          )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+      <!-- 左側區域：圖片展示和按鈕 -->
+      <div class="left-section">
+        <!-- 圖片展示卡片 -->
+        <div class="card">
+          ${
+            images && images.length > 0
+              ? images.length === 1
+                ? images[0].startsWith("css-file-icon:")
+                  ? `<div class="image-gallery">
+                      <div class="main-image-container file-icon-container">
+                        <div class="file-icon file-icon-${images[0].replace(
+                          "css-file-icon:",
+                          ""
+                        )}">
                           <div class="file-icon-extension">.${images[0]
                             .replace("css-file-icon:", "")
                             .toUpperCase()}</div>
-                        </div>`
-                        : `<img src="${images[0]}" alt="${pageToRender.title} - 圖片 1" class="main-image" id="mainImage">`
-                    }
-                  </div>
-                  
-                  <!-- 縮圖導航區域 -->
-                  <div class="thumbnail-container">
-                    <button class="thumbnail-nav prev" onclick="scrollThumbnails(-1)" id="prevBtn">‹</button>
-                    
-                    <div class="thumbnail-wrapper">
-                      <div class="thumbnail-track" id="thumbnailTrack">
-                        ${images
-                          .map(
-                            (img, index) =>
-                              `<div class="thumbnail ${
-                                index === 0 ? "active" : ""
-                              }" onclick="changeMainImage(${index})">
-                                ${
-                                  img.startsWith("css-file-icon:")
-                                    ? `<div class="file-icon file-icon-${img.replace(
-                                        "css-file-icon:",
-                                        ""
-                                      )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px;">
-                                      .${img
-                                        .replace("css-file-icon:", "")
-                                        .toUpperCase()}
-                                    </div>`
-                                    : `<img src="${img}" alt="${
-                                        pageToRender.title
-                                      } - 縮圖 ${index + 1}">`
-                                }
-                              </div>`
-                          )
-                          .join("")}
+                        </div>
                       </div>
+                    </div>`
+                  : `<div class="image-gallery">
+                      <div class="main-image-container">
+                        <img src="${images[0]}" alt="${pageToRender.title}" class="main-image">
+                      </div>
+                    </div>`
+                : `<div class="image-gallery">
+                    <!-- 主要大圖區域 -->
+                    <div class="main-image-container">
+                      ${
+                        images[0].startsWith("css-file-icon:")
+                          ? `<div class="file-icon file-icon-${images[0].replace(
+                              "css-file-icon:",
+                              ""
+                            )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <div class="file-icon-extension">.${images[0]
+                              .replace("css-file-icon:", "")
+                              .toUpperCase()}</div>
+                          </div>`
+                          : `<img src="${images[0]}" alt="${pageToRender.title} - 圖片 1" class="main-image" id="mainImage">`
+                      }
                     </div>
                     
-                    <button class="thumbnail-nav next" onclick="scrollThumbnails(1)" id="nextBtn">›</button>
+                    <!-- 縮圖導航區域 -->
+                    <div class="thumbnail-container">
+                      <button class="thumbnail-nav prev" onclick="scrollThumbnails(-1)" id="prevBtn">‹</button>
+                      
+                      <div class="thumbnail-wrapper">
+                        <div class="thumbnail-track" id="thumbnailTrack">
+                          ${images
+                            .map(
+                              (img, index) =>
+                                `<div class="thumbnail ${
+                                  index === 0 ? "active" : ""
+                                }" onclick="changeMainImage(${index})">
+                                  ${
+                                    img.startsWith("css-file-icon:")
+                                      ? `<div class="file-icon file-icon-${img.replace(
+                                          "css-file-icon:",
+                                          ""
+                                        )}" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                        .${img
+                                          .replace("css-file-icon:", "")
+                                          .toUpperCase()}
+                                      </div>`
+                                      : `<img src="${img}" alt="${
+                                          pageToRender.title
+                                        } - 縮圖 ${index + 1}">`
+                                  }
+                                </div>`
+                            )
+                            .join("")}
+                        </div>
+                      </div>
+                      
+                      <button class="thumbnail-nav next" onclick="scrollThumbnails(1)" id="nextBtn">›</button>
+                    </div>
+                  </div>`
+              : `<div class="image-gallery">
+                  <div class="main-image-container" style="display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+                    <span>產品封面</span>
                   </div>
                 </div>`
-            : `<div class="image-gallery">
-                <div class="main-image-container" style="display: flex; align-items: center; justify-content: center; color: #9ca3af;">
-                  <span>產品封面</span>
-                </div>
-              </div>`
-        }
-        
-        <!-- 功能按鈕區域 -->
-        <div class="action-buttons">
-          <button class="action-btn btn-preview" onclick="previewContent()" id="previewBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            線上閱讀
-          </button>
-          <button class="action-btn btn-favorite" onclick="toggleFavorite()" id="favoriteBtn">
-            <svg id="favoriteIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            收藏
-          </button>
-          <button class="action-btn btn-share" onclick="shareContent()" id="shareBtn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="18" cy="5" r="3"/>
-              <circle cx="6" cy="12" r="3"/>
-              <circle cx="18" cy="19" r="3"/>
-              <path d="m8.59 13.51 6.83 3.98"/>
-              <path d="m15.41 6.51-6.82 3.98"/>
-            </svg>
-            分享連結
-          </button>
+          }
         </div>
+        
+        <!-- 圓形按鈕功能區域 - 版本2：分離卡片 -->
+        <div class="action-buttons-circle">
+          <div class="action-cards-separate">
+            <div class="action-card-individual" onclick="previewContent()">
+              <button class="circle-btn btn-read" id="previewBtn">
+                <div class="btn-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </div>
+              </button>
+              <span class="btn-label">線上閱讀</span>
+            </div>
+
+            <div class="action-card-individual" onclick="toggleFavorite()">
+              <button class="circle-btn btn-favorite" id="favoriteBtn">
+                <div class="btn-icon">
+                  <svg id="favoriteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </div>
+              </button>
+              <span class="btn-label">收藏</span>
+            </div>
+
+            <div class="action-card-individual" onclick="shareContent()">
+              <button class="circle-btn btn-share" id="shareBtn">
+                <div class="btn-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="18" cy="5" r="3"/>
+                    <circle cx="6" cy="12" r="3"/>
+                    <circle cx="18" cy="19" r="3"/>
+                    <path d="m8.59 13.51 6.83 3.98"/>
+                    <path d="m15.41 6.51-6.82 3.98"/>
+                  </svg>
+                </div>
+              </button>
+              <span class="btn-label">分享連結</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 圓形按鈕功能區域 - 版本1：單一卡片（註解掉，可切換使用） -->
+        <!--
+        <div class="action-buttons-circle">
+          <div class="action-card-single">
+            <div class="circle-btn-group">
+              <div class="circle-btn-item">
+                <button class="circle-btn btn-read" onclick="previewContent()" id="previewBtn">
+                  <div class="btn-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </div>
+                </button>
+                <span class="btn-label">線上閱讀</span>
+              </div>
+              <div class="circle-btn-item">
+                <button class="circle-btn btn-favorite" onclick="toggleFavorite()" id="favoriteBtn">
+                  <div class="btn-icon">
+                    <svg id="favoriteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </div>
+                </button>
+                <span class="btn-label">收藏</span>
+              </div>
+              <div class="circle-btn-item">
+                <button class="circle-btn btn-share" onclick="shareContent()" id="shareBtn">
+                  <div class="btn-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="18" cy="5" r="3"/>
+                      <circle cx="6" cy="12" r="3"/>
+                      <circle cx="18" cy="19" r="3"/>
+                      <path d="m8.59 13.51 6.83 3.98"/>
+                      <path d="m15.41 6.51-6.82 3.98"/>
+                    </svg>
+                  </div>
+                </button>
+                <span class="btn-label">分享連結</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        -->
       </div>
       
       <!-- 右側卡片容器 -->
@@ -2103,7 +2390,50 @@ ${(() => {
       initializeGallery();
       initializeFavorite();
       checkAuthStatus(); // 檢查登入狀態
+      initCircleButtons(); // 初始化圓形按鈕
     });
+
+    // 初始化圓形按鈕動畫和交互
+    function initCircleButtons() {
+      const buttons = document.querySelectorAll('.circle-btn');
+      
+      buttons.forEach(btn => {
+        // 添加點擊波紋效果
+        btn.addEventListener('click', function(e) {
+          const ripple = document.createElement('span');
+          ripple.className = 'ripple-effect';
+          ripple.style.position = 'absolute';
+          ripple.style.borderRadius = '50%';
+          ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+          ripple.style.pointerEvents = 'none';
+          
+          const rect = this.getBoundingClientRect();
+          const size = Math.max(rect.width, rect.height);
+          const x = e.clientX - rect.left - size / 2;
+          const y = e.clientY - rect.top - size / 2;
+          
+          ripple.style.width = ripple.style.height = size + 'px';
+          ripple.style.left = x + 'px';
+          ripple.style.top = y + 'px';
+          ripple.style.animation = 'rippleAnimation 0.6s ease-out';
+          
+          this.appendChild(ripple);
+          
+          setTimeout(() => ripple.remove(), 600);
+        });
+        
+        // 添加鍵盤支援
+        btn.setAttribute('tabindex', '0');
+        btn.setAttribute('role', 'button');
+        
+        btn.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.click();
+          }
+        });
+      });
+    }
     
     // 檢查登入狀態
     async function checkAuthStatus() {
