@@ -489,14 +489,15 @@ router.get(
     }
     
     .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-    .nav { 
-      background: rgba(255, 255, 255, 0.95); 
-      border-bottom: 1px solid #e2e8f0; 
-      padding: 20px 40px; 
-      margin: -20px -20px 40px -20px;
+    .nav {
+      background: rgba(255, 255, 255, 0.95);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 40px;
+      margin: 0;
       backdrop-filter: blur(10px);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       border-radius: 0;
+      width: 100%;
     }
     .nav-content { max-width: 1200px; margin: 0 auto; }
     .nav-content { display: flex; justify-content: space-between; align-items: center; }
@@ -963,20 +964,20 @@ router.get(
   </style>
 </head>
 <body>
-  <div class="container">
-    <nav class="nav">
-      <div class="nav-content">
-        <div class="logo-container">
-          <img src="/logo.png" alt="UPPER Logo" style="width: 40px; height: 20px; margin-right: 12px; object-fit: contain;">
-          <span class="logo-text" style="font-size: 24px; font-weight: bold; color: #1f2937;">Upper</span>
-        </div>
-        <div class="nav-links">
-          <a href="/">首頁</a>
-          <a href="/admin.html">管理</a>
-          <span class="author-text" style="color: #6b7280; font-size: 14px; margin-left: 20px;">by 西譯社</span>
-        </div>
+  <nav class="nav">
+    <div class="nav-content">
+      <div class="logo-container">
+        <img src="/logo.png" alt="UPPER Logo" style="width: 40px; height: 20px; margin-right: 12px; object-fit: contain;">
+        <span class="logo-text" style="font-size: 24px; font-weight: bold; color: #1f2937;">Upper</span>
       </div>
-    </nav>
+      <div class="nav-links">
+        <a href="/">首頁</a>
+        <a href="/admin.html">管理</a>
+        <span class="author-text" style="color: #6b7280; font-size: 14px; margin-left: 20px;">by 西譯社</span>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
 
     <!-- 介紹圖片展示區域 (移至上方) -->
     ${(() => {
@@ -1132,7 +1133,7 @@ router.get(
       <div class="right-cards-container">
         <!-- 資訊卡片 -->
         <div class="info-card">
-          <h1 style="font-size: 24px; margin-bottom: 10px; color: #1f2937;">${
+          <h1 style="font-size: 32px; margin-bottom: 10px; color: #1f2937;">${
             pageToRender.title
           }</h1>
           <div style="color: #6b7280; margin-bottom: 16px;">
@@ -1159,11 +1160,11 @@ router.get(
           <form onsubmit="handleDownload(event)">
             <div style="margin-bottom: 12px;">
               <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 *</label>
-              <input type="text" name="name" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;">
+              <input type="text" name="name" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(243, 244, 246, 0.9); color: #1f2937; font-size: 14px;">
             </div>
             <div style="margin-bottom: 16px;">
               <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">電子郵件 *</label>
-              <input type="email" name="email" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(255, 255, 255, 0.9); color: #1f2937; font-size: 14px;">
+              <input type="email" name="email" required style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: rgba(243, 244, 246, 0.9); color: #1f2937; font-size: 14px;">
             </div>
             <button type="submit" style="background: #16a34a; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);">立即下載</button>
           </form>
@@ -2164,9 +2165,10 @@ router.get(
       background: rgba(255, 255, 255, 0.95);
       border-bottom: 1px solid #e2e8f0;
       padding: 20px 40px;
-      margin: -20px -20px 40px -20px;
+      margin: 0;
       backdrop-filter: blur(10px);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      width: 100%;
     }
     .nav-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .logo-container { display: flex; align-items: center; }
@@ -2531,20 +2533,20 @@ router.get(
   </style>
 </head>
 <body>
-  <div class="container">
-    <nav class="nav">
-      <div class="nav-content">
-        <div class="logo-container">
-          <img src="/logo.png" alt="UPPER Logo" style="width: 40px; height: 20px; margin-right: 12px; object-fit: contain;">
-          <span class="logo-text" style="font-size: 24px; font-weight: bold; color: #1f2937;">Upper</span>
-        </div>
-        <div class="nav-links">
-          <a href="/">首頁</a>
-          <a href="/admin.html">管理</a>
-          <span class="author-text" style="color: #6b7280; font-size: 14px; margin-left: 20px;">by 西譯社</span>
-        </div>
+  <nav class="nav">
+    <div class="nav-content">
+      <div class="logo-container">
+        <img src="/logo.png" alt="UPPER Logo" style="width: 40px; height: 20px; margin-right: 12px; object-fit: contain;">
+        <span class="logo-text" style="font-size: 24px; font-weight: bold; color: #1f2937;">Upper</span>
       </div>
-    </nav>
+      <div class="nav-links">
+        <a href="/">首頁</a>
+        <a href="/admin.html">管理</a>
+        <span class="author-text" style="color: #6b7280; font-size: 14px; margin-left: 20px;">by 西譯社</span>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
 
     <!-- User Banner -->
     <div class="user-banner">
