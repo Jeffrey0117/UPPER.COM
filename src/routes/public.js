@@ -1155,7 +1155,7 @@ router.get(
 
         <!-- 下載卡片 -->
         <div class="download-card">
-          <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px;">免費下載</h5>
+          <h5 style="font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; text-align: center;">免費下載</h5>
           <form onsubmit="handleDownload(event)">
             <div style="margin-bottom: 12px;">
               <label style="display: block; margin-bottom: 4px; font-weight: 500; color: #374151; font-size: 14px;">姓名 *</label>
