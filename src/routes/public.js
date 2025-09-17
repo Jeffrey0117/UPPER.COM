@@ -824,6 +824,7 @@ router.get(
       animation: icon-bounce 0.6s ease-in-out !important;
     }
 
+
     @media (max-width: 768px) {
       .main-grid { grid-template-columns: 1fr; }
       .main-image-container { height: 300px; }
@@ -1613,14 +1614,23 @@ ${(() => {
       </div>
 
       <!-- 按鈕區域 -->
-      <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
-        <button onclick="goToUserProfile()" style="background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4); display: flex; align-items: center; gap: 8px;">
-          <span>👁️</span>
-          查看他的檔案
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 16px;">
+        <button onclick="goToUserProfile()" style="background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0-18 0"/>
+            <path d="M3 12h18"/>
+            <path d="M12 3a15.3 15.3 0 0 1 4 9 15.3 15.3 0 0 1-4 9 15.3 15.3 0 0 1-4-9 15.3 15.3 0 0 1 4-9z"/>
+          </svg>
+          查看檔案
         </button>
-        <button onclick="toggleFollow()" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #d1d5db; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">
-          <span id="followIcon">👤</span>
-          <span id="followText">追蹤</span>
+        <button onclick="toggleFollow()" style="background: rgba(107, 114, 128, 0.1); color: #6b7280; border: 1px solid #d1d5db; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 6px;" id="followBtn">
+          <svg id="followIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/>
+            <line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+          <span id="followBtnText">追蹤</span>
         </button>
       </div>
     </div>
@@ -1999,26 +2009,38 @@ ${(() => {
 
     function toggleFollow() {
       const followIcon = document.getElementById('followIcon');
-      const followText = document.getElementById('followText');
       const followBtn = document.getElementById('followBtn');
+      const followBtnText = document.getElementById('followBtnText');
 
       isFollowing = !isFollowing;
 
       if (isFollowing) {
-        // Following state
-        if (followIcon) followIcon.textContent = '✅';
-        if (followText) followText.textContent = '已追蹤';
+        // Following state - update button style and icon
         if (followBtn) {
-          followBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-          followBtn.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+          followBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+          followBtn.style.color = 'white';
+          followBtn.style.border = 'none';
+        }
+        if (followBtnText) {
+          followBtnText.textContent = '已追蹤';
+        }
+        if (followIcon) {
+          // Change to filled heart icon for following state
+          followIcon.innerHTML = '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor"/>';
         }
       } else {
-        // Not following state
-        if (followIcon) followIcon.textContent = '👤';
-        if (followText) followText.textContent = '追蹤';
+        // Not following state - update button style and icon
         if (followBtn) {
           followBtn.style.background = 'rgba(107, 114, 128, 0.1)';
-          followBtn.style.boxShadow = 'none';
+          followBtn.style.color = '#6b7280';
+          followBtn.style.border = '1px solid #d1d5db';
+        }
+        if (followBtnText) {
+          followBtnText.textContent = '追蹤';
+        }
+        if (followIcon) {
+          // Change back to add user icon for not following state
+          followIcon.innerHTML = '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>';
         }
       }
     }
